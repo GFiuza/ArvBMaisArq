@@ -45,6 +45,27 @@ int retorna_filho(char* arq, int filho_n, char* strin)
     return 1;
 }
 
+void ler_arquivo(char* arq)
+{
+    FILE *fp = fopen(arq, "rb");
+    int a;
+    fread(&a, sizeof(int), 1, fp);
+    printf("%d\n",a);
+    int i = 1;
+    while(i <= a)
+    {
+        fread(&a, sizeof(int), 1, fp);
+        printf("%d\n",a);
+    }
+    char saidaaqui[25];
+    int leu = 1;
+    while(leu)
+    {
+        leu = retorna_filho(arq, i, saidaaqui);
+        printf("%s\n",saidaaqui);
+    }
+}
+
 void libera(char *arq){
     char nome_filho[NOME_MAX];
     int acao = retorna_filho(arq,0,nome_filho);
