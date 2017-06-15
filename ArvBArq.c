@@ -26,6 +26,7 @@ char* cria (int num)
             j++;
         }
         n_arq++;
+        fclose(fp);
         return nome;
     }
     FILE *fp = fopen("raiz.dat", "w");
@@ -39,5 +40,6 @@ char* cria (int num)
         j++;
     }
     n_arq++;
+    fclose(fp);
     return "raiz.dat";
 }
