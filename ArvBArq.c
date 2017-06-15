@@ -3,6 +3,7 @@
 #include <string.h>
 
 int n_arq = 0;
+int const NOME_MAX = 25;
 
 char* cria (int num)
 {
