@@ -6,39 +6,24 @@ int n_arq = 0;
 
 char* cria (int num)
 {
-    char ni  = '1';
-    char pulaae = '\n';
+    int ni  = 1;
     char valor[20];
     sprintf(valor,"%d", num);
     if (n_arq != 0)
     {
-        char nome[25];
+        char nome[NOME_MAX];
         sprintf(nome,"%d" , n_arq);
         strcat(nome,".dat");
-        FILE *fp = fopen(nome,"w");
-        fwrite(&ni,sizeof(char),1,fp);
-        fwrite(&pulaae,sizeof(char),1,fp);
-        char i;
-        int j = 0;
-        for(i = valor[j]; i != '\0'; i = valor[j])
-        {
-            fwrite(&i, sizeof(char), 1, fp);
-            j++;
-        }
+        FILE *fp = fopen(nome,"wb");
+        fwrite(&ni,sizeof(int),1,fp);
+        fwrite(&num,sizeof(int),1,fp);
         n_arq++;
         fclose(fp);
-        return nome;
+        return &nome;
     }
-    FILE *fp = fopen("raiz.dat", "w");
-    fwrite(&ni,sizeof(char),1,fp);
-    fwrite(&pulaae,sizeof(char),1,fp);
-    char i;
-    int j = 0;
-    for(i = valor[j]; i != '\0'; i = valor[j])
-    {
-        fwrite(&i, sizeof(char), 1, fp);
-        j++;
-    }
+    FILE *fp = fopen("raiz.dat", "wb");
+    fwrite(&ni,sizeof(int),1,fp);
+    fwrite(&num,sizeof(int),1,fp);
     n_arq++;
     fclose(fp);
     return "raiz.dat";
