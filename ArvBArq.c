@@ -29,6 +29,22 @@ void cria (int num, char *nomee)
     strcpy(nomee,"raiz.dat");
 }
 
+int retorna_filho(char* arq, int filho_n, char* strin)
+{
+    FILE *fp = fopen(arq, "rb");
+    int num_filhos_total;
+    fread(&num_filhos_total, sizeof(int),1,fp);
+    if(filho_n > num_filhos_total) return 0;
+    fseek(fp,sizeof(int)*num_filhos_total,SEEK_CUR);
+    fseek(fp,sizeof(char)*25*filho_n,SEEK_CUR);
+    char retorno[25];
+    int leu = fread(retorno, sizeof(char)*25,1,fp);
+    fclose(fp);
+    if(!leu) return 0;
+    strcpy(strin, retorno);
+    return 1;
+}
+
 void libera(char *arq){
     FILE *fp = fopen(arq,"rb+");
     int nchaves;
