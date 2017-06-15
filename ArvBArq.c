@@ -38,7 +38,7 @@ int retorna_filho(char* arq, int filho_n, char* strin)
     fseek(fp,sizeof(int)*num_filhos_total,SEEK_CUR);
     fseek(fp,sizeof(char)*NOME_MAX*filho_n,SEEK_CUR);
     char retorno[NOME_MAX];
-    int leu = fread(retorno, sizeof(char)*NOME_MAX,1,fp);
+    int leu = fread(retorno, sizeof(char),NOME_MAX,fp);
     fclose(fp);
     if(!leu) return 0;
     strcpy(strin, retorno);
