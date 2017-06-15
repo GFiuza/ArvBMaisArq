@@ -7,8 +7,6 @@ int n_arq = 0;
 void cria (int num, char *nomee)
 {
     int ni  = 1;
-    char valor[20];
-    sprintf(valor,"%d", num);
     if (n_arq != 0)
     {
         char nome[25];
