@@ -3,30 +3,21 @@
 #include <string.h>
 #define NOME_MAX 25
 
-int n_arq = 0;
+int n_arq = 1;
 
 void cria (int num, char *nomee)
 {
     int ni  = 1;
-    if (n_arq != 0)
-    {
-        char nome[25];
-        sprintf(nome,"%d" , n_arq);
-        strcat(nome,".dat");
-        strcpy(nomee,nome);
-        FILE *fp = fopen(nome,"wb");
-        fwrite(&ni,sizeof(int),1,fp);
-        fwrite(&num,sizeof(int),1,fp);
-        n_arq++;
-        fclose(fp);
-        return;
-    }
-    FILE *fp = fopen("raiz.dat", "wb");
+    char nome[25];
+    sprintf(nome,"%d" , n_arq);
+    strcat(nome,".dat");
+    strcpy(nomee,nome);
+    FILE *fp = fopen(nome,"wb");
     fwrite(&ni,sizeof(int),1,fp);
     fwrite(&num,sizeof(int),1,fp);
     n_arq++;
     fclose(fp);
-    strcpy(nomee,"raiz.dat");
+    return;
 }
 
 int retorna_filho(char* arq, int filho_n, char* strin)
