@@ -78,3 +78,26 @@ void libera(char *arq){
     }
     remove(arq);
 }
+
+void imprime(char *narq, int andar){
+    FILE *fp = fopen(narq,"rb");
+    if(!fp) return; //close?
+    int i, j,nchaves, valor;
+    char filho[NOME_MAX];
+    fread(&nchaves,sizeof(int),1,fp);
+    for(i=0; i < nchaves; i++){
+        fclose(fp);
+        retorna_filho(narq,i,filho);
+        imprime(filho,andar+1);
+        for(j=0; j<=andar; j++)
+            printf("   ");
+        fp = fopen(narq,"rb");
+        fseek(fp,sizeof(int)*(i+1),SEEK_SET);
+        fread(&valor,sizeof(int),1,fp);
+        printf("%d\n", valor);
+    }
+    if(fp)
+        fclose(fp);
+    retorna_filho(narq,i,filho);
+    imprime(filho,andar+1);
+}
