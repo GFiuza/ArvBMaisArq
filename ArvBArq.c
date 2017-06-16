@@ -29,8 +29,7 @@ void cria (int num, char *nomee)
     strcpy(nomee,"raiz.dat");
 }
 
-int retorna_filho(char* arq, int filho_n, char* strin)
-{
+int retorna_filho(char* arq, int filho_n, char* strin){ //Testada. Está OK.
     FILE *fp = fopen(arq, "rb");
     int num_filhos_total;
     fread(&num_filhos_total, sizeof(int),1,fp);
@@ -45,31 +44,33 @@ int retorna_filho(char* arq, int filho_n, char* strin)
     return 1;
 }
 
-void ler_arquivo(char* arq)
-{
+void ler_arquivo(char* arq){ //Testada. Está OK.
     FILE *fp = fopen(arq, "rb");
-    int a;
+    int a, n;
     fread(&a, sizeof(int), 1, fp);
     printf("%d\n",a);
     int i = 1;
     while(i <= a)
     {
-        fread(&a, sizeof(int), 1, fp);
-        printf("%d\n",a);
+        fread(&n, sizeof(int), 1, fp);
+        printf("%d\n",n);
+        i++;
     }
     char saidaaqui[25];
     int leu = 1;
+    i=0;
+    leu = retorna_filho(arq, i, saidaaqui);
     while(leu)
     {
-        leu = retorna_filho(arq, i, saidaaqui);
         printf("%s\n",saidaaqui);
+        i++;
+        leu = retorna_filho(arq, i, saidaaqui);
     }
 }
 
 void libera(char *arq){
     char nome_filho[NOME_MAX];
-    int acao = retorna_filho(arq,0,nome_filho);
-    int ind = 0;
+    int ind = 0, acao = retorna_filho(arq,ind,nome_filho);
     while(acao){
         libera(nome_filho);
         remove(nome_filho);
@@ -79,7 +80,7 @@ void libera(char *arq){
     remove(arq);
 }
 
-void imprime(char *narq, int andar){
+void imprime(char *narq, int andar){ //Testada. Está OK.
     FILE *fp = fopen(narq,"rb");
     if(!fp) return; //close?
     int i, j,nchaves, valor;
@@ -87,8 +88,8 @@ void imprime(char *narq, int andar){
     fread(&nchaves,sizeof(int),1,fp);
     for(i=0; i < nchaves; i++){
         fclose(fp);
-        retorna_filho(narq,i,filho);
-        imprime(filho,andar+1);
+        if (retorna_filho(narq,i,filho))
+            imprime(filho,andar+1);
         for(j=0; j<=andar; j++)
             printf("   ");
         fp = fopen(narq,"rb");
@@ -98,19 +99,19 @@ void imprime(char *narq, int andar){
     }
     if(fp)
         fclose(fp);
-    retorna_filho(narq,i,filho);
-    imprime(filho,andar+1);
+    if (retorna_filho(narq,i,filho))
+        imprime(filho,andar+1);
 }
 
-int busca(char* narq, int ch, char* resp){
+int busca(char* narq, int ch, char* resp){ //Testada. Está OK.
     FILE *f = fopen(narq, "rb");
     if (!f) return 0;
     int nchaves, filho = 0, n, i;
     fread(&nchaves, sizeof(int), 1, f);
     for (i = 1; i <= nchaves; i++){
         fread(&n, sizeof(int), 1, f);
-        if (n > ch) filho++;
-        else if (n < ch) break;
+        if (n < ch) filho++;
+        else if (n > ch) break;
         else{
             fclose(f);
             strcpy(resp, narq);
@@ -118,8 +119,40 @@ int busca(char* narq, int ch, char* resp){
         }
     }
     if (i > nchaves) return 0;
-    fseek(f, ((nchaves-i)*sizeof(int) + (filho*sizeof(char)*NOME_MAX)), SEEK_SET);
+    fseek(f, ((nchaves-i)*sizeof(int) + (filho*sizeof(char)*NOME_MAX)), SEEK_CUR);
     char temp[NOME_MAX];
-    fread(temp, sizeof(char)*NOME_MAX, 1, f);
+    fread(temp, sizeof(char), NOME_MAX, f);
     return busca(temp, ch, resp);
+}
+
+int main(){
+    //Pequeno teste que eu fiz
+    char nome[] = "teste.dat", nome2[] = "teste2.dat", nome3[] = "teste3.dat", r[NOME_MAX];
+    FILE *f = fopen(nome, "wb");
+    if (!f) return -1;
+    int teste[] = {2, 3, 6};
+    fwrite(teste, sizeof(int), 3, f);
+    fwrite(nome2, sizeof(char), 25, f);
+    fwrite(nome3, sizeof(char), 25, f);
+    fclose(f);
+    f = fopen(nome2, "wb");
+    if (!f) return -1;
+    int teste2[] = {2, 1, 2};
+    fwrite(teste2, sizeof(int), 3, f);
+    fclose(f);
+    f = fopen(nome3, "wb");
+    if (!f) return -1;
+    int teste3[] = {2, 4, 5};
+    fwrite(teste3, sizeof(int), 3, f);
+    fclose(f);
+    imprime(nome, 0);
+    if (busca(nome, 5, r)){
+        printf("numero encontrado no arquivo %s\n", r);
+    }
+    else{
+        printf("numero nao encontrado na arvore");
+    }
+    ler_arquivo(nome);
+    libera(nome);
+    return 0;
 }
