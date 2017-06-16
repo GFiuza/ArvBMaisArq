@@ -101,3 +101,25 @@ void imprime(char *narq, int andar){
     retorna_filho(narq,i,filho);
     imprime(filho,andar+1);
 }
+
+int busca(char* narq, int ch, char* resp){
+    FILE *f = fopen(narq, "rb");
+    if (!f) return 0;
+    int nchaves, filho = 0, n, i;
+    fread(&nchaves, sizeof(int), 1, f);
+    for (i = 1; i <= nchaves; i++){
+        fread(&n, sizeof(int), 1, f);
+        if (n > ch) filho++;
+        else if (n < ch) break;
+        else{
+            fclose(f);
+            strcpy(resp, narq);
+            return 1;
+        }
+    }
+    if (i > nchaves) return 0;
+    fseek(f, ((nchaves-i)*sizeof(int) + (filho*sizeof(char)*NOME_MAX)), SEEK_SET);
+    char temp[NOME_MAX];
+    fread(temp, sizeof(char)*NOME_MAX, 1, f);
+    return busca(temp, ch, resp);
+}
