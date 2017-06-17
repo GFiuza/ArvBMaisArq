@@ -179,3 +179,67 @@ int main(){
     libera(nome);
     return 0;
 }
+
+void divisao(char *nx, int i, char *ny, int t){
+    char novo[NOME_MAX];
+    cria(0,novo);
+    FILE *fn = fopen(novo,"rb+");
+    if(!fn) exit(1);
+    int t_menos = t-1;
+    fwrite(&t_menos,sizeof(int),1,fn);
+    int j, vn, vy;
+    FILE *fy = fopen(ny,"rb+");
+    if(!fy) exit(1);
+    for(j=0; j<t-1; j++){
+        fseek(fn,sizeof(int)*(j+1),SEEK_SET); // +1 por causa de nchaves ocupando a primeira posição do arq
+        fseek(fy,sizeof(int)*(j+t+1),SEEK_SET);
+        fread(&vy,sizeof(int),1,fy);
+        fwrite(&vy,sizeof(int),1,fn); // n->chave[j] = y->chave[j+t]
+    }
+    char filho_y[NOME_MAX];
+    if(retorna_filho(ny,0,filho_y)){ //verifica se y não é folha e possui filho
+        int prim_filho_y = pos_primeiro_filho(fy);
+        for(j=0; j<t; j++){
+            fseek(fn,sizeof(char)*NOME_MAX*(t+j),SEEK_SET); //encontra a posição do filho no arquivo que tem t-1 chaves
+            fseek(fy,prim_filho_y+(sizeof(char)*NOME_MAX*(j+t)),SEEK_SET);
+            fread(&filho_y,sizeof(char),NOME_MAX,fy);
+            fwrite(&filho_y,sizeof(char),NOME_MAX,fn);
+            fseek(fy,prim_filho_y+(sizeof(char)*NOME_MAX*(j+t)),SEEK_SET);
+            //aqui deveria apagar o registro do arquivo y
+        }
+    }
+    fclose(fn);
+    fseek(fy,0L,SEEK_SET);
+    fwrite(&t_menos,sizeof(int),1,fy);
+    FILE *fx = fopen(nx,"rb+");
+    if(!fx) exit(1);
+    int n_chaves_x;
+    fread(&n_chaves_x,sizeof(int),1,fx);
+    fseek(fx,sizeof(int)*n_chaves_x,SEEK_CUR);
+    char filho_x[NOME_MAX];
+    int prim_filho_x = pos_primeiro_filho(fx);
+    for(j = n_chaves_x; j>=i; j--){
+        fseek(fx,prim_filho_x+(sizeof(char)*NOME_MAX*(j)),SEEK_SET);
+        fread(&filho_x,sizeof(char),NOME_MAX,fx);
+        fseek(fx,prim_filho_x+(sizeof(char)*NOME_MAX*(j+1)),SEEK_SET);
+        fwrite(&filho_x,sizeof(char),NOME_MAX,fx); // x->filho[j+1]=x->filho[j];
+    }
+    fseek(fx,prim_filho_x+sizeof(char)*NOME_MAX*i,SEEK_SET);
+    fwrite(&novo,sizeof(char),NOME_MAX,fx);
+    int vx;
+    for(j=n_chaves_x; j>= i; j--){
+        fseek(fx,sizeof(int)*j, SEEK_SET); // posicao j-1
+        fread(&vx,sizeof(int),1,fx);
+        fseek(fx,sizeof(int)*(j+1), SEEK_SET); // posicao j
+        fwrite(&vx,sizeof(int),1,fx);
+    }
+    fseek(fy,sizeof(int)*t,SEEK_SET); // posicao t-1
+    fread(&vy,sizeof(int),1,fy);
+    fseek(fx,sizeof(int)*i,SEEK_SET); // posicao i-1
+    fwrite(&vy,sizeof(int),1,fx);
+    n_chaves_x++;
+    fseek(fx,0L,SEEK_SET);
+    fwrite(&vx,sizeof(int),1,fx); // atualiza qtd de chaves de x
+    fclose(fx);
+    fclose(fy);
+}
