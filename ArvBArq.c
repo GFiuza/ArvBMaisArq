@@ -7,29 +7,46 @@ int n_arq = 1;
 
 void cria (int num, char *nomee)
 {
+    /*Esta função cria um arquivo de nome "n_arq.dat" com uma única chave dentro dele (a chave "num").
+     *formato do arquivo criado:
+    +-------+
+    |1      |
+    |num    |
+    +-------+
+     *onde 1 é o número de chave do arquivo
+     *num é a chave criada 
+     */
     int ni  = 1;
-    if (n_arq != 0)
-    {
-        char nome[NOME_MAX];
-        sprintf(nome,"%d" , n_arq);
-        strcat(nome,".dat");
-        strcpy(nomee,nome);
-        FILE *fp = fopen(nome,"wb");
-        fwrite(&ni,sizeof(int),1,fp);
-        fwrite(&num,sizeof(int),1,fp);
-        n_arq++;
-        fclose(fp);
-        return;
-    }
-    FILE *fp = fopen("raiz.dat", "wb");
+    //if (n_arq != 0)
+    //{
+    char nome[NOME_MAX];
+    sprintf(nome,"%d" , n_arq);
+    strcat(nome,".dat");
+    strcpy(nomee,nome);
+    FILE *fp = fopen(nome,"wb");
     fwrite(&ni,sizeof(int),1,fp);
     fwrite(&num,sizeof(int),1,fp);
     n_arq++;
     fclose(fp);
-    strcpy(nomee,"raiz.dat");
+    return;
+    //}
+    //esta parte do código cria o arquivo chamado "raiz.dat", mas resolvemos não utilizar esta parte
+    /*FILE *fp = fopen("raiz.dat", "wb");
+    fwrite(&ni,sizeof(int),1,fp);
+    fwrite(&num,sizeof(int),1,fp);
+    n_arq++;
+    fclose(fp);
+    strcpy(nomee,"raiz.dat");*/
 }
 
-int retorna_filho(char* arq, int filho_n, char* strin){ //Testada. Est� OK.
+int retorna_filho(char* arq, int filho_n, char* strin){ //Testada. Está OK.
+    /*esta função retorna se um certo filho_n do nó dado existe
+     *caso exista, retorna 1, e modifica strin para ter o nome deste filho
+     *caso não exista, apenas retorna 0
+     *filho n precisa ser um valor de 0 até o fator de ramificação, caso contrário irá retornar 0 sempre
+     *função foi feita para contornar o problema de um certo número máximo de arquivos aberto ao mesmo tempo
+     *desta forma é possível fazer chamadas recursivas sem abrir arquivos a cada chamada
+     */
     FILE *fp = fopen(arq, "rb");
     int num_filhos_total;
     fread(&num_filhos_total, sizeof(int),1,fp);
@@ -44,7 +61,8 @@ int retorna_filho(char* arq, int filho_n, char* strin){ //Testada. Est� OK.
     return 1;
 }
 
-void ler_arquivo(char* arq){ //Testada. Est� OK.
+void ler_arquivo(char* arq){ //Testada. Está OK.
+    //imprime as chaves e seus filhos de um arquivo
     FILE *fp = fopen(arq, "rb");
     int a, n;
     fread(&a, sizeof(int), 1, fp);
@@ -69,6 +87,7 @@ void ler_arquivo(char* arq){ //Testada. Est� OK.
 }
 
 void libera(char *arq){
+    //exclui o arquivo arq e todos os seus filhos (ou ao menos deveria)
     char nome_filho[NOME_MAX];
     int ind = 0, acao = retorna_filho(arq,ind,nome_filho);
     while(acao){
@@ -80,7 +99,7 @@ void libera(char *arq){
     remove(arq);
 }
 
-void imprime(char *narq, int andar){ //Testada. Est� OK.
+void imprime(char *narq, int andar){ //Testada. Está OK.
     FILE *fp = fopen(narq,"rb");
     if(!fp) return; //close?
     int i, j,nchaves, valor;
@@ -103,7 +122,11 @@ void imprime(char *narq, int andar){ //Testada. Est� OK.
         imprime(filho,andar+1);
 }
 
-int busca(char* narq, int ch, char* resp){ //Testada. Est� OK.
+int busca(char* narq, int ch, char* resp){ //Testada. Está OK.
+    /*busca onde uma certa chave está localizada
+     *se existir retorna 1, e modifica resp como o nome do arquivo onde se encontra a chave
+     *caso contrário, retorna 0
+     */
     FILE *f = fopen(narq, "rb");
     if (!f) return 0;
     int nchaves, filho = 0, n, i;
