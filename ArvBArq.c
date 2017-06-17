@@ -148,38 +148,6 @@ int busca(char* narq, int ch, char* resp){ //Testada. Está OK.
     return busca(temp, ch, resp);
 }
 
-int main(){
-    //Pequeno teste que eu fiz
-    char nome[] = "teste.dat", nome2[] = "teste2.dat", nome3[] = "teste3.dat", r[NOME_MAX];
-    FILE *f = fopen(nome, "wb");
-    if (!f) return -1;
-    int teste[] = {2, 3, 6};
-    fwrite(teste, sizeof(int), 3, f);
-    fwrite(nome2, sizeof(char), 25, f);
-    fwrite(nome3, sizeof(char), 25, f);
-    fclose(f);
-    f = fopen(nome2, "wb");
-    if (!f) return -1;
-    int teste2[] = {2, 1, 2};
-    fwrite(teste2, sizeof(int), 3, f);
-    fclose(f);
-    f = fopen(nome3, "wb");
-    if (!f) return -1;
-    int teste3[] = {2, 4, 5};
-    fwrite(teste3, sizeof(int), 3, f);
-    fclose(f);
-    imprime(nome, 0);
-    if (busca(nome, 5, r)){
-        printf("numero encontrado no arquivo %s\n", r);
-    }
-    else{
-        printf("numero nao encontrado na arvore");
-    }
-    ler_arquivo(nome);
-    libera(nome);
-    return 0;
-}
-
 void divisao(char *nx, int i, char *ny, int t){
     char novo[NOME_MAX];
     cria(0,novo);
@@ -242,4 +210,36 @@ void divisao(char *nx, int i, char *ny, int t){
     fwrite(&vx,sizeof(int),1,fx); // atualiza qtd de chaves de x
     fclose(fx);
     fclose(fy);
+}
+
+int main(){
+    //Pequeno teste que eu fiz
+    char nome[] = "teste.dat", nome2[] = "teste2.dat", nome3[] = "teste3.dat", r[NOME_MAX];
+    FILE *f = fopen(nome, "wb");
+    if (!f) return -1;
+    int teste[] = {2, 3, 6};
+    fwrite(teste, sizeof(int), 3, f);
+    fwrite(nome2, sizeof(char), 25, f);
+    fwrite(nome3, sizeof(char), 25, f);
+    fclose(f);
+    f = fopen(nome2, "wb");
+    if (!f) return -1;
+    int teste2[] = {2, 1, 2};
+    fwrite(teste2, sizeof(int), 3, f);
+    fclose(f);
+    f = fopen(nome3, "wb");
+    if (!f) return -1;
+    int teste3[] = {2, 4, 5};
+    fwrite(teste3, sizeof(int), 3, f);
+    fclose(f);
+    imprime(nome, 0);
+    if (busca(nome, 5, r)){
+        printf("numero encontrado no arquivo %s\n", r);
+    }
+    else{
+        printf("numero nao encontrado na arvore");
+    }
+    ler_arquivo(nome);
+    libera(nome);
+    return 0;
 }
