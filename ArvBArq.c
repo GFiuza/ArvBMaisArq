@@ -137,7 +137,8 @@ int busca(char* narq, int ch, char* resp){ //Testada. Está OK.
         else if (n > ch) break;
         else{
             fclose(f);
-            strcpy(resp, narq);
+            if(resp)
+                strcpy(resp, narq);
             return 1;
         }
     }
