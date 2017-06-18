@@ -148,6 +148,21 @@ int busca(char* narq, int ch, char* resp){ //Testada. Está OK.
     return busca(temp, ch, resp);
 }
 
+long int pos_primeiro_filho(FILE *fp){
+    // esse metodo retorna a posição do primeiro filho
+    // caso seja um nó interno, retorna a posição do filho no arquivo
+    // do contrário retorna 0
+    fseek(fp,0L,SEEK_END);
+    int end = ftell(fp);
+    fseek(fp,0L,SEEK_SET);
+    int n_chaves;
+    fread(&n_chaves,sizeof(int),1,fp);
+    fseek(fp,sizeof(int)*n_chaves,SEEK_CUR);
+    if(end == ftell(fp))
+        return 0;
+    return ftell(fp);
+}
+
 void divisao(char *nx, int i, char *ny, int t){
     char novo[NOME_MAX];
     cria(0,novo);
