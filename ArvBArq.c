@@ -173,22 +173,20 @@ void divisao(char *nx, int i, char *ny, int t){
     int j, vn, vy;
     FILE *fy = fopen(ny,"rb+");
     if(!fy) exit(1);
+    fseek(fy,sizeof(int)*(t+1),SEEK_SET); // y->chave[t] e novo já está na pos correta
     for(j=0; j<t-1; j++){
-        fseek(fn,sizeof(int)*(j+1),SEEK_SET); // +1 por causa de nchaves ocupando a primeira posição do arq
-        fseek(fy,sizeof(int)*(j+t+1),SEEK_SET);
-        fread(&vy,sizeof(int),1,fy);
+        fread(&vy,sizeof(int),1,fy); // não preciso de fseek pois ambos vão iterativamente acertando a posição
         fwrite(&vy,sizeof(int),1,fn); // n->chave[j] = y->chave[j+t]
     }
     char filho_y[NOME_MAX];
-    if(retorna_filho(ny,0,filho_y)){ //verifica se y não é folha e possui filho
-        int prim_filho_y = pos_primeiro_filho(fy);
+    int prim_filho_y = pos_primeiro_filho(fy);
+    if(prim_filho_y){ //verifica se y tem filho
+        // novo já está na pos de arquivo correta
+        fseek(fy,prim_filho_y+(sizeof(char)*NOME_MAX*t),SEEK_SET); // y->filho[t];
         for(j=0; j<t; j++){
-            fseek(fn,sizeof(char)*NOME_MAX*(t+j),SEEK_SET); //encontra a posição do filho no arquivo que tem t-1 chaves
-            fseek(fy,prim_filho_y+(sizeof(char)*NOME_MAX*(j+t)),SEEK_SET);
-            fread(&filho_y,sizeof(char),NOME_MAX,fy);
+            fread(&filho_y,sizeof(char),NOME_MAX,fy); // iterativamente pega o proximo filho de y
             fwrite(&filho_y,sizeof(char),NOME_MAX,fn);
-            fseek(fy,prim_filho_y+(sizeof(char)*NOME_MAX*(j+t)),SEEK_SET);
-            //aqui deveria apagar o registro do arquivo y
+            // os filhos de y serão removidos mais tarde no procedimento
         }
     }
     fclose(fn);
@@ -220,10 +218,37 @@ void divisao(char *nx, int i, char *ny, int t){
     fread(&vy,sizeof(int),1,fy);
     fseek(fx,sizeof(int)*i,SEEK_SET); // posicao i-1
     fwrite(&vy,sizeof(int),1,fx);
+    // isso aqui não faz perder uma chave ou nome?? testar!!
+    // testar linha acima
+    //serio
+    // nao esquecer
+    // rosseti n pode ler isso aqui nao
     n_chaves_x++;
     fseek(fx,0L,SEEK_SET);
     fwrite(&vx,sizeof(int),1,fx); // atualiza qtd de chaves de x
     fclose(fx);
+    // acertando os filhos de y e atualizando as chaves de y para t-1
+    FILE *aux = fopen("aux.dat","wb");
+    if(!aux) exit(1);
+    fseek(fy,0L,SEEK_END);
+    int tam = ftell(fy);
+    int nchaves = t_menos; // esse valor já havia sido estipulado
+    fwrite(&nchaves,sizeof(int),1,aux);
+    for(i=0; i<=nchaves; i++){
+        fread(&vy,sizeof(int),1,fy);
+        fwrite(&vy,sizeof(int),1,aux);
+    }
+    char filho[NOME_MAX];
+    fseek(fy,prim_filho_y,SEEK_SET); // prim filho de y não mudou de posição durante o procedimento
+    for(i=prim_filho_y;i!=tam;i=ftell(fy)){ // a cada leitura, já tenho a posicão do próximo filho
+        fread(&filho,sizeof(char),NOME_MAX,fy);
+        fwrite(&filho,sizeof(char),NOME_MAX,aux);
+    }
+    fclose(fy);
+    fclose(aux);
+    remove(ny);
+    rename("aux.dat",ny);
+    fy = fopen(ny,"rb+");
     fclose(fy);
 }
 
