@@ -26,6 +26,15 @@ TARV *inicializa(int t){
     return novo;
 }
 
+void libera_no(TARV *no, int t){
+    free(no->chave);
+    int i;
+    for(i=0; i < (2*t); i++)
+        free(no->filho[i]);
+    free(no->filho);
+    free(no);
+}
+
 TARV *ler_mp(char *arq, int t){
     /* 
         função responsável por ler um nó para MP
