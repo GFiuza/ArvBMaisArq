@@ -12,6 +12,20 @@ typedef struct no{
     char **filho;
 }TARV;
 
+TARV *inicializa(int t){
+    // responsável por iniciar um nó vazio
+    TARV *novo = (TARV*)malloc(sizeof(TARV));
+    novo->nchaves = 0;
+    novo->chave = (int*)malloc(sizeof(int*)*(2*t-1));
+    novo->filho = (char**)malloc(sizeof(char*)*2*t);
+    int i;
+    for(i=0; i < (2*t); i++){
+        novo->filho[i] = (char*)malloc(sizeof(char)*NOME_MAX);
+        novo->filho[i] = NULL;
+    }
+    return novo;
+}
+
 TARV *ler_mp(char *arq, int t){
     /* 
         função responsável por ler um nó para MP
