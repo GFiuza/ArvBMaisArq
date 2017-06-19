@@ -54,7 +54,6 @@ TARV *ler_mp(char *arq, int t){
         }
         else novo->filho[i] = NULL;
     }
-    printf("\n");
     fclose(fp);
     return novo;
 }
