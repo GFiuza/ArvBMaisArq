@@ -5,6 +5,46 @@
 
 int n_arq = 1;
 
+typedef struct no{
+    // definição da estrutura responsável por capturar um nó da arvore
+    int nchaves;
+    int *chave;
+    char **filho;
+}TARV;
+
+TARV *ler_mp(char *arq, int t){
+    /* 
+        função responsável por ler um nó para MP
+        retorna o no com os dados do arq
+    */
+    FILE *fp = fopen(arq,"rb");
+    if(!fp) exit(1);// ??
+    int tam;
+    fseek(fp,0L,SEEK_END);
+    tam = ftell(fp);
+    fseek(fp,0L,SEEK_SET);
+    TARV *novo = (TARV*)malloc(sizeof(TARV));
+    fread(&novo->nchaves,sizeof(int),1,fp);
+    novo->chave = (int*)malloc(sizeof(int*)*(2*t-1));
+    novo->filho = (char**)malloc(sizeof(char*)*2*t);
+    int i, chave;
+    for(i=0; i < novo->nchaves; i++)
+        fread(&novo->chave[i],sizeof(int),1,fp);
+    char nome[NOME_MAX];
+    for(i=0; i < (2*t); i++){
+        novo->filho[i] = (char*)malloc(sizeof(char)*NOME_MAX);
+        if(ftell(fp)!=tam){ //verifica se é possivel ler um filho
+            printf("entrei %dx",i);
+            fread(&nome,sizeof(char),NOME_MAX,fp);
+            strcpy(novo->filho[i],nome);
+        }
+        else novo->filho[i] = NULL;
+    }
+    printf("\n");
+    fclose(fp);
+    return novo;
+}
+
 void cria (int num, char *nomee)
 {
     /*Esta função cria um arquivo de nome "n_arq.dat" com uma única chave dentro dele (a chave "num").
@@ -84,15 +124,15 @@ void ler_arquivo(char* arq){ //Testada. Está OK.
         i++;
         leu = retorna_filho(arq, i, saidaaqui);
     }
+    fclose(fp);
 }
 
 void libera(char *arq){
-    //exclui o arquivo arq e todos os seus filhos (ou ao menos deveria)
+    //exclui o arquivo arq e todos os seus filhos (works better on Linux)
     char nome_filho[NOME_MAX];
     int ind = 0, acao = retorna_filho(arq,ind,nome_filho);
     while(acao){
         libera(nome_filho);
-        //remove(nome_filho);
         ind++;
         acao = retorna_filho(arq,ind,nome_filho);
     }
@@ -101,23 +141,24 @@ void libera(char *arq){
 
 void imprime(char *narq, int andar){ //Testada. Está OK.
     FILE *fp = fopen(narq,"rb");
-    if(!fp) return; //close?
+    if(!fp) return;
     int i, j,nchaves, valor;
     char filho[NOME_MAX];
     fread(&nchaves,sizeof(int),1,fp);
     for(i=0; i < nchaves; i++){
-        fclose(fp);
         if (retorna_filho(narq,i,filho))
-            imprime(filho,andar+1);
+        {
+            fclose(fp); // preciso fechar para não abrir mais do que o SO permite
+            imprime(filho,andar+1); // devido a essa chamada recursiva
+            fp = fopen(narq,"rb");
+        }
         for(j=0; j<=andar; j++)
             printf("   ");
-        fp = fopen(narq,"rb");
         fseek(fp,sizeof(int)*(i+1),SEEK_SET);
         fread(&valor,sizeof(int),1,fp);
         printf("%d\n", valor);
     }
-    if(fp)
-        fclose(fp);
+    fclose(fp);
     if (retorna_filho(narq,i,filho))
         imprime(filho,andar+1);
 }
@@ -336,32 +377,6 @@ void insere_nao_completo(char* narq, int k, int t){
     if (retorna_filho(narq, j, filhoi))
         insere_nao_completo(filhoi, k, t);
     else exit(1);
-}
-
-typedef struct no{
-    int nchaves;
-    int *chave;
-    char **filho;
-}TARV;
-
-TARV *mapeia(char *arq, int t){
-    FILE *fp = fopen(arq,"rb");
-    if(!fp) exit(1);// ??
-    TARV *novo = (TARV*)malloc(sizeof(TARV));
-    fread(&novo->nchaves,sizeof(int),1,fp);
-    novo->chave = (int*)malloc(sizeof(int*)*(2*t-1));
-    novo->filho = (char**)malloc(sizeof(char*)*2*t);
-    int i, chave;
-    for(i=0; i < novo->nchaves; i++)
-        fread(&novo->chave[i],sizeof(int),1,fp);
-    for(i=0; i < (2*t); i++){
-        novo->filho[i] = (char*)malloc(sizeof(char)*NOME_MAX);
-        if(!feof(fp))
-            fread(&novo->filho[i],sizeof(char),NOME_MAX,fp);
-        else novo->filho[i] = NULL;
-    }
-    fclose(fp);
-    return novo;
 }
 
 int main(){
