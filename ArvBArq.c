@@ -338,6 +338,32 @@ void insere_nao_completo(char* narq, int k, int t){
     else exit(1);
 }
 
+typedef struct no{
+    int nchaves;
+    int *chave;
+    char **filho;
+}TARV;
+
+TARV *mapeia(char *arq, int t){
+    FILE *fp = fopen(arq,"rb");
+    if(!fp) exit(1);// ??
+    TARV *novo = (TARV*)malloc(sizeof(TARV));
+    fread(&novo->nchaves,sizeof(int),1,fp);
+    novo->chave = (int*)malloc(sizeof(int*)*(2*t-1));
+    novo->filho = (char**)malloc(sizeof(char*)*2*t);
+    int i, chave;
+    for(i=0; i < novo->nchaves; i++)
+        fread(&novo->chave[i],sizeof(int),1,fp);
+    for(i=0; i < (2*t); i++){
+        novo->filho[i] = (char*)malloc(sizeof(char)*NOME_MAX);
+        if(!feof(fp))
+            fread(&novo->filho[i],sizeof(char),NOME_MAX,fp);
+        else novo->filho[i] = NULL;
+    }
+    fclose(fp);
+    return novo;
+}
+
 int main(){
     //Pequeno teste que eu fiz
     char nome[] = "teste.dat", nome2[] = "teste2.dat", nome3[] = "teste3.dat", r[NOME_MAX];
