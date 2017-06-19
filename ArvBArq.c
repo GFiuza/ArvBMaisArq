@@ -254,6 +254,34 @@ void divisao(char *nx, int i, char *ny, int t){
     fclose(fy);
 }
 
+void insere(char *no, int num, int t){
+    FILE *existe = fopen(no,"rb");
+    if(!existe){ // caso o arquivo ainda não exista, significa que é o primeiro nó da arvore
+        cria(num,no);
+        return;
+    }
+    int nchaves;
+    fread(&nchaves,sizeof(int),1,existe);
+    fclose(existe);
+    if(busca(no,num,NULL)) return; // caso num já esteja na arvore
+    if(nchaves == (2*t)-1){
+        char novo[NOME_MAX];
+        cria(-1,novo);
+        FILE *fp = fopen(novo,"rb+");
+        nchaves = 0;
+        fwrite(&nchaves,sizeof(int),1,fp);
+        fseek(fp,sizeof(int),SEEK_CUR);
+        fwrite(no,sizeof(char),25,fp); // nao tenho certeza quanto a essa parte aqui, talvez de merda
+        // nao deixem a rosseti ler o comentario acima tb
+        // TEM QUE TIRAR QUANDO RESOLVER
+        fclose(fp);
+        divisao(novo,1,no,t);
+        //insere_nao_completos(novo,num,t);
+        return;
+    }
+    //insere_nao_completo(novo,num,t);
+}
+
 int main(){
     //Pequeno teste que eu fiz
     char nome[] = "teste.dat", nome2[] = "teste2.dat", nome3[] = "teste3.dat", r[NOME_MAX];
