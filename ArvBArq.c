@@ -125,10 +125,11 @@ void imprime(char *narq, int andar){ //Testada. Está OK.
 int busca(char* narq, int ch, char* resp){ //Testada. Está OK.
     /*busca onde uma certa chave está localizada
      *se existir retorna 1, e modifica resp como o nome do arquivo onde se encontra a chave
+     *se o arquivo não existir, retorna -1
      *caso contrário, retorna 0
      */
     FILE *f = fopen(narq, "rb");
-    if (!f) return 0;
+    if (!f) return -1;
     int nchaves, filho = 0, n, i;
     fread(&nchaves, sizeof(int), 1, f);
     for (i = 1; i <= nchaves; i++){
