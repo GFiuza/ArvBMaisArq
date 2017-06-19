@@ -14,7 +14,7 @@ void cria (int num, char *nomee)
     |num    |
     +-------+
      *onde 1 é o número de chave do arquivo
-     *num é a chave criada 
+     *num é a chave criada
      */
     int ni  = 1;
     //if (n_arq != 0)
@@ -92,7 +92,7 @@ void libera(char *arq){
     int ind = 0, acao = retorna_filho(arq,ind,nome_filho);
     while(acao){
         libera(nome_filho);
-        remove(nome_filho);
+        //remove(nome_filho);
         ind++;
         acao = retorna_filho(arq,ind,nome_filho);
     }
@@ -280,6 +280,62 @@ void insere(char *no, int num, int t){
         return;
     }
     //insere_nao_completo(novo,num,t);
+}
+
+void insere_nao_completo(char* narq, int k, int t){
+    FILE* f = fopen(narq, "rb");
+    if (!f) exit(1);
+    int i, n;
+    fread(&i, sizeof(int), 1, f);
+    fseek(f, i*sizeof(int), SEEK_CUR);
+    if (feof(f)){
+        fseek(f, sizeof(int), SEEK_SET);
+        FILE* g = fopen("temp.dat", "wb");
+        i++;
+        fwrite(&i, sizeof(int), 1, g);
+        int entrou = 0;
+        fread(&n, sizeof(int), 1, f);
+        while(!feof(f)){
+            if (!entrou && k<n){
+                fwrite(&k, sizeof(int), 1, g);
+                entrou++;
+            }
+            fwrite(&n, sizeof(int), 1, g);
+            fread(&n, sizeof(int), 1, f);
+        }
+        if (!entrou)
+            fwrite(&k, sizeof(int), 1, g);
+        remove(narq);
+        rename("temp.dat", narq);
+        return;
+    }
+    fseek(f, sizeof(int), SEEK_SET);
+    fread(&n, sizeof(int), 1, f);
+    int j=1;
+    while (!feof && k > n){
+        j++;
+        fread(&n, sizeof(int), 1, f);
+    }
+    j++;
+    char filhoi[NOME_MAX];
+    if (!retorna_filho(narq, j, filhoi)) exit(1);
+    close(f);
+    f = fopen(filhoi, "rb");
+    if (!f) exit(1);
+    int nchaves;
+    fread(&nchaves, sizeof(int), 1, f);
+    close(f);
+    if (nchaves == ((2*t)-1)){
+        divisao(narq, (i+1), filhoi, t);
+        f = fopen(narq, "rb");
+        fseek(f, (j*sizeof(int))+1, SEEK_SET);
+        fread(&n, sizeof(int), 1, f);
+        fclose(f);
+        if (k>n) j++;
+    }
+    if (retorna_filho(narq, j, filhoi))
+        insere_nao_completo(filhoi, k, t);
+    else exit(1);
 }
 
 int main(){
