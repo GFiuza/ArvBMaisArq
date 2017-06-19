@@ -129,7 +129,7 @@ int busca(char* narq, int ch, char* resp){ //Testada. Está OK.
      *caso contrário, retorna 0
      */
     FILE *f = fopen(narq, "rb");
-    if (!f) return -1;
+    if (!f) return 0;
     int nchaves, filho = 0, n, i;
     fread(&nchaves, sizeof(int), 1, f);
     for (i = 1; i <= nchaves; i++){
