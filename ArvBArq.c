@@ -406,7 +406,10 @@ void salva(TARV *no, char *nome){
     if(!no) return;
     cria(-1,nome);
     FILE *fp = fopen(nome,"rb+");
-    if(!fp) exit(1);
+    if(!fp){
+        cria(-1,nome);
+        FILE *fp = fopen(nome,"rb+");
+    }
     fwrite(&no->nchaves,sizeof(int),1,fp);
     int i;
     for(i=0;i<no->nchaves;i++)
@@ -420,6 +423,12 @@ void salva(TARV *no, char *nome){
 }
 
 TARV *divisao(TARV *no, TARV *filho, int pos, int t){
+    /*
+    * Função para dividir um nó com 2t-1 chaves (no limite)
+    * Cria um novo nó para receber parte das chaves e filhos do nó filho
+    * novo passa a ser filho de nó
+    * por fim, uma chave de filho sobe para o nó
+    */
     TARV *novo = inicializa(t);
     novo->nchaves = t-1;
     int i;
@@ -443,6 +452,39 @@ TARV *divisao(TARV *no, TARV *filho, int pos, int t){
     no->nchaves++;
     libera_no(novo,t);
     return no;
+}
+
+void *insere_aux(TARV *no, int num, int t){
+    /*
+    *Função para auxiliar a tarefa do insere
+    *Recursiva, critério de parada quando nó é folha: realiza a inserção
+    *Do contrário procura qual filho do nó será candidato à inserção
+    */
+    int i = no->nchaves-1;
+    if(!no->filho[0]){
+        //caso a inserção seja numa folha, insere ordenado a chave
+        while((i >= 0) && (num < no->chave[i])){
+            no->chave[i+1] = no->chave[i];
+            i--;
+        }
+        no->chave[i+1] = num;
+        no->nchaves++;
+        salva(no,no->nomearq);
+        return;
+    }
+    // procura potencial candidato a receber nó
+    while((i >= 0) && (num < no->chave[i])) i--;
+    i++; //acerta a posição caso i = -1 ou num > no->chave
+    TARV *filho = ler_mp(no->filho[i],t);
+    if(filho->nchaves == (2*t)-1){
+        // caso o candidato se encontre no limite, uma divisão é necessária
+        no = divisao(no,filho,i+1,t);
+        //caso o indice precise de correção após a divisão
+        if(num > no->chave[i]) i++;
+    }
+    salva(no,no->nomearq);
+    libera_no(no,t);
+    insere_aux(filho,num,t);
 }
 
 int main(){
