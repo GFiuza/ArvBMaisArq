@@ -10,6 +10,7 @@ typedef struct no{
     int nchaves;
     int *chave;
     char **filho;
+    char nomearq[NOME_MAX];
 }TARV;
 
 TARV *inicializa(int t){
@@ -36,12 +37,12 @@ void libera_no(TARV *no, int t){
 }
 
 TARV *ler_mp(char *arq, int t){
-    /* 
+    /*
         função responsável por ler um nó para MP
         retorna o no com os dados do arq
     */
     FILE *fp = fopen(arq,"rb");
-    if(!fp) exit(1);// ??
+    if(!fp){printf("OPA\n"); exit(1);}// ??
     int tam;
     fseek(fp,0L,SEEK_END);
     tam = ftell(fp);
@@ -57,13 +58,13 @@ TARV *ler_mp(char *arq, int t){
     for(i=0; i < (2*t); i++){
         novo->filho[i] = (char*)malloc(sizeof(char)*NOME_MAX);
         if(ftell(fp)!=tam){ //verifica se é possivel ler um filho
-            printf("entrei %dx",i);
             fread(&nome,sizeof(char),NOME_MAX,fp);
             strcpy(novo->filho[i],nome);
         }
         else novo->filho[i] = NULL;
     }
     fclose(fp);
+    strcpy(novo->nomearq,arq);
     return novo;
 }
 
@@ -150,11 +151,12 @@ void ler_arquivo(char* arq){ //Testada. Está OK.
 }
 
 void libera(char *arq){
-    //exclui o arquivo arq e todos os seus filhos (works better on Linux)
+    //exclui o arquivo arq e todos os seus filhos (ou ao menos deveria)
     char nome_filho[NOME_MAX];
     int ind = 0, acao = retorna_filho(arq,ind,nome_filho);
     while(acao){
         libera(nome_filho);
+        //remove(nome_filho);
         ind++;
         acao = retorna_filho(arq,ind,nome_filho);
     }
@@ -227,184 +229,9 @@ long int pos_primeiro_filho(FILE *fp){
         return 0;
     return ftell(fp);
 }
-/*
-void divisao(char *nx, int i, char *ny, int t){
-    char novo[NOME_MAX];
-    cria(0,novo);
-    FILE *fn = fopen(novo,"rb+");
-    if(!fn) exit(1);
-    int t_menos = t-1;
-    fwrite(&t_menos,sizeof(int),1,fn);
-    int j, vn, vy;
-    FILE *fy = fopen(ny,"rb+");
-    if(!fy) exit(1);
-    fseek(fy,sizeof(int)*(t+1),SEEK_SET); // y->chave[t] e novo já está na pos correta
-    for(j=0; j<t-1; j++){
-        fread(&vy,sizeof(int),1,fy); // não preciso de fseek pois ambos vão iterativamente acertando a posição
-        fwrite(&vy,sizeof(int),1,fn); // n->chave[j] = y->chave[j+t]
-    }
-    char filho_y[NOME_MAX];
-    int prim_filho_y = pos_primeiro_filho(fy);
-    if(prim_filho_y){ //verifica se y tem filho
-        // novo já está na pos de arquivo correta
-        fseek(fy,prim_filho_y+(sizeof(char)*NOME_MAX*t),SEEK_SET); // y->filho[t];
-        for(j=0; j<t; j++){
-            fread(&filho_y,sizeof(char),NOME_MAX,fy); // iterativamente pega o proximo filho de y
-            fwrite(&filho_y,sizeof(char),NOME_MAX,fn);
-            // os filhos de y serão removidos mais tarde no procedimento
-        }
-    }
-    fclose(fn);
-    fseek(fy,0L,SEEK_SET);
-    fwrite(&t_menos,sizeof(int),1,fy);
-    FILE *fx = fopen(nx,"rb+");
-    if(!fx) exit(1);
-    int n_chaves_x;
-    fread(&n_chaves_x,sizeof(int),1,fx);
-    fseek(fx,sizeof(int)*n_chaves_x,SEEK_CUR);
-    char filho_x[NOME_MAX];
-    int prim_filho_x = pos_primeiro_filho(fx);
-    for(j = n_chaves_x; j>=i; j--){
-        fseek(fx,prim_filho_x+(sizeof(char)*NOME_MAX*(j)),SEEK_SET);
-        fread(&filho_x,sizeof(char),NOME_MAX,fx);
-        fseek(fx,prim_filho_x+(sizeof(char)*NOME_MAX*(j+1)),SEEK_SET);
-        fwrite(&filho_x,sizeof(char),NOME_MAX,fx); // x->filho[j+1]=x->filho[j];
-    }
-    fseek(fx,prim_filho_x+sizeof(char)*NOME_MAX*i,SEEK_SET);
-    fwrite(&novo,sizeof(char),NOME_MAX,fx);
-    int vx;
-    for(j=n_chaves_x; j>= i; j--){
-        fseek(fx,sizeof(int)*j, SEEK_SET); // posicao j-1
-        fread(&vx,sizeof(int),1,fx);
-        fseek(fx,sizeof(int)*(j+1), SEEK_SET); // posicao j
-        fwrite(&vx,sizeof(int),1,fx);
-    }
-    fseek(fy,sizeof(int)*t,SEEK_SET); // posicao t-1
-    fread(&vy,sizeof(int),1,fy);
-    fseek(fx,sizeof(int)*i,SEEK_SET); // posicao i-1
-    fwrite(&vy,sizeof(int),1,fx);
-    // isso aqui não faz perder uma chave ou nome?? testar!!
-    // testar linha acima
-    //serio
-    // nao esquecer
-    // rosseti n pode ler isso aqui nao
-    n_chaves_x++;
-    fseek(fx,0L,SEEK_SET);
-    fwrite(&vx,sizeof(int),1,fx); // atualiza qtd de chaves de x
-    fclose(fx);
-    // acertando os filhos de y e atualizando as chaves de y para t-1
-    FILE *aux = fopen("aux.dat","wb");
-    if(!aux) exit(1);
-    fseek(fy,0L,SEEK_END);
-    int tam = ftell(fy);
-    int nchaves = t_menos; // esse valor já havia sido estipulado
-    fwrite(&nchaves,sizeof(int),1,aux);
-    for(i=0; i<=nchaves; i++){
-        fread(&vy,sizeof(int),1,fy);
-        fwrite(&vy,sizeof(int),1,aux);
-    }
-    char filho[NOME_MAX];
-    fseek(fy,prim_filho_y,SEEK_SET); // prim filho de y não mudou de posição durante o procedimento
-    for(i=prim_filho_y;i!=tam;i=ftell(fy)){ // a cada leitura, já tenho a posicão do próximo filho
-        fread(&filho,sizeof(char),NOME_MAX,fy);
-        fwrite(&filho,sizeof(char),NOME_MAX,aux);
-    }
-    fclose(fy);
-    fclose(aux);
-    remove(ny);
-    rename("aux.dat",ny);
-    fy = fopen(ny,"rb+");
-    fclose(fy);
-}
-
-void insere(char *no, int num, int t){
-    FILE *existe = fopen(no,"rb");
-    if(!existe){ // caso o arquivo ainda não exista, significa que é o primeiro nó da arvore
-        cria(num,no);
-        return;
-    }
-    int nchaves;
-    fread(&nchaves,sizeof(int),1,existe);
-    fclose(existe);
-    if(busca(no,num,NULL)) return; // caso num já esteja na arvore
-    if(nchaves == (2*t)-1){
-        char novo[NOME_MAX];
-        cria(-1,novo);
-        FILE *fp = fopen(novo,"rb+");
-        nchaves = 0;
-        fwrite(&nchaves,sizeof(int),1,fp);
-        fseek(fp,sizeof(int),SEEK_CUR);
-        fwrite(no,sizeof(char),25,fp); // nao tenho certeza quanto a essa parte aqui, talvez de merda
-        // nao deixem a rosseti ler o comentario acima tb
-        // TEM QUE TIRAR QUANDO RESOLVER
-        fclose(fp);
-        divisao(novo,1,no,t);
-        //insere_nao_completos(novo,num,t);
-        return;
-    }
-    //insere_nao_completo(novo,num,t);
-}
-
-void insere_nao_completo(char* narq, int k, int t){
-    FILE* f = fopen(narq, "rb");
-    if (!f) exit(1);
-    int i, n;
-    fread(&i, sizeof(int), 1, f);
-    fseek(f, i*sizeof(int), SEEK_CUR);
-    if (feof(f)){
-        fseek(f, sizeof(int), SEEK_SET);
-        FILE* g = fopen("temp.dat", "wb");
-        i++;
-        fwrite(&i, sizeof(int), 1, g);
-        int entrou = 0;
-        fread(&n, sizeof(int), 1, f);
-        while(!feof(f)){
-            if (!entrou && k<n){
-                fwrite(&k, sizeof(int), 1, g);
-                entrou++;
-            }
-            fwrite(&n, sizeof(int), 1, g);
-            fread(&n, sizeof(int), 1, f);
-        }
-        if (!entrou)
-            fwrite(&k, sizeof(int), 1, g);
-        remove(narq);
-        rename("temp.dat", narq);
-        return;
-    }
-    fseek(f, sizeof(int), SEEK_SET);
-    fread(&n, sizeof(int), 1, f);
-    int j=1;
-    while (!feof && k > n){
-        j++;
-        fread(&n, sizeof(int), 1, f);
-    }
-    j++;
-    char filhoi[NOME_MAX];
-    if (!retorna_filho(narq, j, filhoi)) exit(1);
-    close(f);
-    f = fopen(filhoi, "rb");
-    if (!f) exit(1);
-    int nchaves;
-    fread(&nchaves, sizeof(int), 1, f);
-    close(f);
-    if (nchaves == ((2*t)-1)){
-        divisao(narq, (i+1), filhoi, t);
-        f = fopen(narq, "rb");
-        fseek(f, (j*sizeof(int))+1, SEEK_SET);
-        fread(&n, sizeof(int), 1, f);
-        fclose(f);
-        if (k>n) j++;
-    }
-    if (retorna_filho(narq, j, filhoi))
-        insere_nao_completo(filhoi, k, t);
-    else exit(1);
-}
-*/
 
 void salva(TARV *no, char *nome){
     if(!no) return;
-    cria(-1,nome);
     FILE *fp = fopen(nome,"rb+");
     if(!fp){
         cria(-1,nome);
@@ -423,12 +250,6 @@ void salva(TARV *no, char *nome){
 }
 
 TARV *divisao(TARV *no, TARV *filho, int pos, int t){
-    /*
-    * Função para dividir um nó com 2t-1 chaves (no limite)
-    * Cria um novo nó para receber parte das chaves e filhos do nó filho
-    * novo passa a ser filho de nó
-    * por fim, uma chave de filho sobe para o nó
-    */
     TARV *novo = inicializa(t);
     novo->nchaves = t-1;
     int i;
@@ -436,25 +257,30 @@ TARV *divisao(TARV *no, TARV *filho, int pos, int t){
         novo->chave[i] = filho->chave[t+i];
     if(filho->filho[0]){
         for(i=0;i<t;i++){
-            novo->filho[i] = filho->filho[i+t];
+            //novo->filho[i] = filho->filho[i+t];
+            strcpy(novo->filho[i],filho->filho[i+t]);
             filho->filho[i+t] = NULL;
         }
     }
     filho->nchaves = t-1;
     for(i=no->nchaves;i>=pos;i--){
-        no->filho[i+1] = no->filho[i];
+        //no->filho[i+1] = no->filho[i];
+        strcpy(no->filho[i+1],no->filho[i]);
         no->chave[i] = no->chave[i-1];
     }
     char nome_novo[NOME_MAX];
+    cria(-1,nome_novo);
     salva(novo,nome_novo);
-    no->filho[pos] = nome_novo;
+    libera_no(novo,t);
+    //no->filho[pos] = nome_novo;
+    strcpy(no->filho[pos],nome_novo);
     no->chave[pos-1] = filho->chave[t-1];
     no->nchaves++;
-    libera_no(novo,t);
+    ler_arquivo(no->nomearq);
     return no;
 }
 
-void *insere_aux(TARV *no, int num, int t){
+void insere_aux(TARV *no, int num, int t){
     /*
     *Função para auxiliar a tarefa do insere
     *Recursiva, critério de parada quando nó é folha: realiza a inserção
@@ -470,11 +296,13 @@ void *insere_aux(TARV *no, int num, int t){
         no->chave[i+1] = num;
         no->nchaves++;
         salva(no,no->nomearq);
+        libera_no(no,t);
         return;
     }
     // procura potencial candidato a receber nó
     while((i >= 0) && (num < no->chave[i])) i--;
     i++; //acerta a posição caso i = -1 ou num > no->chave
+    printf("%s\n",no->filho[i]);
     TARV *filho = ler_mp(no->filho[i],t);
     if(filho->nchaves == (2*t)-1){
         // caso o candidato se encontre no limite, uma divisão é necessária
@@ -487,34 +315,67 @@ void *insere_aux(TARV *no, int num, int t){
     insere_aux(filho,num,t);
 }
 
-int main(){
-    //Pequeno teste que eu fiz
-    char nome[] = "teste.dat", nome2[] = "teste2.dat", nome3[] = "teste3.dat", r[NOME_MAX];
-    FILE *f = fopen(nome, "wb");
-    if (!f) return -1;
-    int teste[] = {2, 3, 6};
-    fwrite(teste, sizeof(int), 3, f);
-    fwrite(nome2, sizeof(char), 25, f);
-    fwrite(nome3, sizeof(char), 25, f);
-    fclose(f);
-    f = fopen(nome2, "wb");
-    if (!f) return -1;
-    int teste2[] = {2, 1, 2};
-    fwrite(teste2, sizeof(int), 3, f);
-    fclose(f);
-    f = fopen(nome3, "wb");
-    if (!f) return -1;
-    int teste3[] = {2, 4, 5};
-    fwrite(teste3, sizeof(int), 3, f);
-    fclose(f);
-    imprime(nome, 0);
-    if (busca(nome, 5, r)){
-        printf("numero encontrado no arquivo %s\n", r);
+void insere(char *arq,int num, int t){
+    if(busca(arq,num,NULL))
+        return;
+    FILE *existe = fopen(arq,"rb");
+    if(!existe){
+        cria(num,arq);
+        return;
     }
-    else{
-        printf("numero nao encontrado na arvore");
+    fclose(existe);
+    TARV *no = ler_mp(arq,t);
+    // caso o no atual precise de divisão
+    if(no->nchaves == (2*t)-1){
+printf("1\n");
+        char nomeraiz[NOME_MAX];
+        cria(-1,nomeraiz);
+printf("2\n");
+        TARV *raiz = inicializa(t);
+printf("3\n");
+        raiz->nchaves = 0;
+printf("3.25\n");
+        strcpy(raiz->filho[0],no->nomearq);
+printf("3.5\n");
+        strcpy(raiz->nomearq,nomeraiz);
+printf("4\n");
+        raiz = divisao(raiz,no,1,t);
+printf("5\n");
+        salva(no,no->nomearq);
+        libera_no(no,t);
+printf("6\n");
+        insere_aux(raiz,num,t);
+printf("7\n");
+        strcpy(arq,nomeraiz);
+printf("show\n");
+        return;
     }
-    ler_arquivo(nome);
-    libera(nome);
-    return 0;
+    insere_aux(no,num,t);
+}
+
+int main(int argc, char *argv[]){
+  char raiz[NOME_MAX];
+  int num = 0, from, t;
+  printf("Insira valor de t: \n");
+  scanf("%d\n",&t);
+  while(num != -1){
+    printf("Digite um numero para adicionar. 0 para imprimir. -9 para remover e -1 para sair\n");
+    scanf("%i", &num);
+    if(num == -9){
+      scanf("%d", &from);
+      //arvore = retira(arvore, from, t);
+      imprime(raiz,0);
+    }
+    else if(num == -1){
+      printf("\n");
+      imprime(raiz,0);
+      return 0;
+    }
+    else if(!num){
+      printf("\n");
+      imprime(raiz,0);
+    }
+    else insere(raiz, num, t);
+    printf("\n\n");
+  }
 }
