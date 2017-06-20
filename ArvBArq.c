@@ -151,12 +151,11 @@ void ler_arquivo(char* arq){ //Testada. Está OK.
 }
 
 void libera(char *arq){
-    //exclui o arquivo arq e todos os seus filhos (ou ao menos deveria)
+    //exclui o arquivo arq e todos os seus filhos (works better on Linux)
     char nome_filho[NOME_MAX];
     int ind = 0, acao = retorna_filho(arq,ind,nome_filho);
     while(acao){
         libera(nome_filho);
-        //remove(nome_filho);
         ind++;
         acao = retorna_filho(arq,ind,nome_filho);
     }
@@ -250,6 +249,12 @@ void salva(TARV *no, char *nome){
 }
 
 TARV *divisao(TARV *no, TARV *filho, int pos, int t){
+   /*
+    * Função para dividir um nó com 2t-1 chaves (no limite)
+    * Cria um novo nó para receber parte das chaves e filhos do nó filho
+    * novo passa a ser filho de nó
+    * por fim, uma chave de filho sobe para o nó
+   */
     TARV *novo = inicializa(t);
     novo->nchaves = t-1;
     int i;
