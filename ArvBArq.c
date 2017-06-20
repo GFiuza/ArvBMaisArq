@@ -227,7 +227,7 @@ long int pos_primeiro_filho(FILE *fp){
         return 0;
     return ftell(fp);
 }
-
+/*
 void divisao(char *nx, int i, char *ny, int t){
     char novo[NOME_MAX];
     cria(0,novo);
@@ -399,6 +399,50 @@ void insere_nao_completo(char* narq, int k, int t){
     if (retorna_filho(narq, j, filhoi))
         insere_nao_completo(filhoi, k, t);
     else exit(1);
+}
+*/
+
+void salva(TARV *no, char *nome){
+    if(!no) return;
+    cria(-1,nome);
+    FILE *fp = fopen(nome,"rb+");
+    if(!fp) exit(1);
+    fwrite(&no->nchaves,sizeof(int),1,fp);
+    int i;
+    for(i=0;i<no->nchaves;i++)
+        fwrite(&no->chave[i],sizeof(int),1,fp);
+    //char filho[NOME_MAX];
+    for(i=0;no->filho[i];i++){
+        //strcpy(filho,no->filho[i]);
+        fwrite(&no->filho[i],sizeof(char),NOME_MAX,fp);
+    }
+    fclose(fp);
+}
+
+TARV *divisao(TARV *no, TARV *filho, int pos, int t){
+    TARV *novo = inicializa(t);
+    novo->nchaves = t-1;
+    int i;
+    for(i=0;i<t-1;i++)
+        novo->chave[i] = filho->chave[t+i];
+    if(filho->filho[0]){
+        for(i=0;i<t;i++){
+            novo->filho[i] = filho->filho[i+t];
+            filho->filho[i+t] = NULL;
+        }
+    }
+    filho->nchaves = t-1;
+    for(i=no->nchaves;i>=pos;i--){
+        no->filho[i+1] = no->filho[i];
+        no->chave[i] = no->chave[i-1];
+    }
+    char nome_novo[NOME_MAX];
+    salva(novo,nome_novo);
+    no->filho[pos] = nome_novo;
+    no->chave[pos-1] = filho->chave[t-1];
+    no->nchaves++;
+    libera_no(novo,t);
+    return no;
 }
 
 int main(){
