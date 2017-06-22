@@ -229,7 +229,7 @@ void salva(TARV *no, char *nome){
     FILE *fp = fopen(nome,"wb");
     if(!fp){
         cria(no->chave[0],nome);
-        FILE *fp = fopen(nome,"wb");
+        fp = fopen(nome,"wb");
     }
     fwrite(&no->nchaves,sizeof(int),1,fp);
     int i;
@@ -242,6 +242,15 @@ void salva(TARV *no, char *nome){
     }
     fclose(fp);
 }
+void ler_TARV(TARV *a)
+{
+    int i;
+    printf("Chaves de %s: %d\n\n", a->nomearq, a->nchaves);
+    for(i = 0; i < a->nchaves; i++) printf("%d\n",a->chave[i]);
+    printf("Filhos:");
+    for(i = 0; i < a->qtdFilhos; i++) printf("%s\n",a->filho[i]);
+    printf("\n\n");
+}
 
 TARV *divisao(TARV *a, TARV *b, int pos, int t){
    /*
@@ -249,12 +258,11 @@ TARV *divisao(TARV *a, TARV *b, int pos, int t){
     * Cria um novo nó para receber parte das chaves e filhos do nó b
     * novo passa a ser filho de a
     * por fim, uma chave de b sobe para o a
-   */
+    */
     TARV *novo = inicializa(t);
     novo->nchaves = t-1;
     int i;
-    for(i=0;i<t-1;i++)
-        novo->chave[i] = b->chave[t+i];
+    for(i=0;i<t-1;i++) novo->chave[i] = b->chave[t+i];
     if(b->qtdFilhos > 0){
         for(i=0;i<t;i++){
             strcpy(novo->filho[i],b->filho[i+t]);
@@ -265,12 +273,14 @@ TARV *divisao(TARV *a, TARV *b, int pos, int t){
     b->nchaves = t-1;
     for(i=a->nchaves;i>=pos;i--){
         strcpy(a->filho[i+1],a->filho[i]);
-        a->chave[i] = a->chave[i-1];
     }
     char nome_novo[NOME_MAX];
     salva(novo,nome_novo);
-    libera_no(novo,t);
     strcpy(a->filho[pos],nome_novo);
+    libera_no(novo,t);
+    for(i=a->nchaves;i>=pos;i--){
+        a->chave[i] = a->chave[i-1];
+    }
     a->qtdFilhos++;
     a->chave[pos-1] = b->chave[t-1];
     a->nchaves++;
