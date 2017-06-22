@@ -8,6 +8,7 @@ int n_arq = 1;
 typedef struct no{
     // definição da estrutura responsável por capturar um nó da arvore
     int nchaves;
+    int qtdFilhos;
     int *chave;
     char **filho;
     char nomearq[NOME_MAX];
@@ -17,12 +18,12 @@ TARV *inicializa(int t){
     // responsável por iniciar um nó vazio
     TARV *novo = (TARV*)malloc(sizeof(TARV));
     novo->nchaves = 0;
-    novo->chave = (int*)malloc(sizeof(int*)*(2*t-1));
+    novo->qtdFilhos = 0;
+    novo->chave = (int*)malloc(sizeof(int)*(2*t-1));
     novo->filho = (char**)malloc(sizeof(char*)*2*t);
     int i;
     for(i=0; i < (2*t); i++){
         novo->filho[i] = (char*)malloc(sizeof(char)*NOME_MAX);
-        novo->filho[i] = NULL;
     }
     return novo;
 }
@@ -42,29 +43,23 @@ TARV *ler_mp(char *arq, int t){
         retorna o no com os dados do arq
     */
     FILE *fp = fopen(arq,"rb");
-    if(!fp){printf("OPA\n"); exit(1);}// ??
-    int tam;
+    if(!fp){printf("OPA\n"); exit(1);}
     fseek(fp,0L,SEEK_END);
-    tam = ftell(fp);
+    int tam = ftell(fp);
     fseek(fp,0L,SEEK_SET);
-    TARV *novo = (TARV*)malloc(sizeof(TARV));
+    TARV *novo = inicializa(t);
+    strcpy(novo->nomearq,arq);
     fread(&novo->nchaves,sizeof(int),1,fp);
-    novo->chave = (int*)malloc(sizeof(int*)*(2*t-1));
-    novo->filho = (char**)malloc(sizeof(char*)*2*t);
-    int i, chave;
-    for(i=0; i < novo->nchaves; i++)
+    int i;
+    for(i=0;i<novo->nchaves;i++)
         fread(&novo->chave[i],sizeof(int),1,fp);
     char nome[NOME_MAX];
-    for(i=0; i < (2*t); i++){
-        novo->filho[i] = (char*)malloc(sizeof(char)*NOME_MAX);
-        if(ftell(fp)!=tam){ //verifica se é possivel ler um filho
-            fread(&nome,sizeof(char),NOME_MAX,fp);
-            strcpy(novo->filho[i],nome);
-        }
-        else novo->filho[i] = NULL;
+    while(ftell(fp)!=tam){
+        fread(&nome,sizeof(char),NOME_MAX,fp);
+        strcpy(novo->filho[i],nome);
+        novo->qtdFilhos++;
     }
     fclose(fp);
-    strcpy(novo->nomearq,arq);
     return novo;
 }
 
@@ -231,58 +226,55 @@ long int pos_primeiro_filho(FILE *fp){
 
 void salva(TARV *no, char *nome){
     if(!no) return;
-    FILE *fp = fopen(nome,"rb+");
+    FILE *fp = fopen(nome,"wb");
     if(!fp){
-        cria(-1,nome);
-        FILE *fp = fopen(nome,"rb+");
+        cria(no->chave[0],nome);
+        FILE *fp = fopen(nome,"wb");
     }
     fwrite(&no->nchaves,sizeof(int),1,fp);
     int i;
     for(i=0;i<no->nchaves;i++)
         fwrite(&no->chave[i],sizeof(int),1,fp);
-    //char filho[NOME_MAX];
-    for(i=0;no->filho[i];i++){
-        //strcpy(filho,no->filho[i]);
-        fwrite(&no->filho[i],sizeof(char),NOME_MAX,fp);
+    char name[NOME_MAX];
+    for(i=0;i<no->qtdFilhos;i++){
+        strcpy(name,no->filho[i]);
+        fwrite(&name,sizeof(char),NOME_MAX,fp);
     }
     fclose(fp);
 }
 
-TARV *divisao(TARV *no, TARV *filho, int pos, int t){
+TARV *divisao(TARV *a, TARV *b, int pos, int t){
    /*
     * Função para dividir um nó com 2t-1 chaves (no limite)
-    * Cria um novo nó para receber parte das chaves e filhos do nó filho
-    * novo passa a ser filho de nó
-    * por fim, uma chave de filho sobe para o nó
+    * Cria um novo nó para receber parte das chaves e filhos do nó b
+    * novo passa a ser filho de a
+    * por fim, uma chave de b sobe para o a
    */
     TARV *novo = inicializa(t);
     novo->nchaves = t-1;
     int i;
     for(i=0;i<t-1;i++)
-        novo->chave[i] = filho->chave[t+i];
-    if(filho->filho[0]){
+        novo->chave[i] = b->chave[t+i];
+    if(b->qtdFilhos > 0){
         for(i=0;i<t;i++){
-            //novo->filho[i] = filho->filho[i+t];
-            strcpy(novo->filho[i],filho->filho[i+t]);
-            filho->filho[i+t] = NULL;
+            strcpy(novo->filho[i],b->filho[i+t]);
+            b->qtdFilhos--;
+            novo->qtdFilhos++;
         }
     }
-    filho->nchaves = t-1;
-    for(i=no->nchaves;i>=pos;i--){
-        //no->filho[i+1] = no->filho[i];
-        strcpy(no->filho[i+1],no->filho[i]);
-        no->chave[i] = no->chave[i-1];
+    b->nchaves = t-1;
+    for(i=a->nchaves;i>=pos;i--){
+        strcpy(a->filho[i+1],a->filho[i]);
+        a->chave[i] = a->chave[i-1];
     }
     char nome_novo[NOME_MAX];
-    cria(-1,nome_novo);
     salva(novo,nome_novo);
     libera_no(novo,t);
-    //no->filho[pos] = nome_novo;
-    strcpy(no->filho[pos],nome_novo);
-    no->chave[pos-1] = filho->chave[t-1];
-    no->nchaves++;
-    ler_arquivo(no->nomearq);
-    return no;
+    strcpy(a->filho[pos],nome_novo);
+    a->qtdFilhos++;
+    a->chave[pos-1] = b->chave[t-1];
+    a->nchaves++;
+    return a;
 }
 
 void insere_aux(TARV *no, int num, int t){
@@ -292,7 +284,7 @@ void insere_aux(TARV *no, int num, int t){
     *Do contrário procura qual filho do nó será candidato à inserção
     */
     int i = no->nchaves-1;
-    if(!no->filho[0]){
+    if(no->qtdFilhos == 0){
         //caso a inserção seja numa folha, insere ordenado a chave
         while((i >= 0) && (num < no->chave[i])){
             no->chave[i+1] = no->chave[i];
@@ -307,11 +299,10 @@ void insere_aux(TARV *no, int num, int t){
     // procura potencial candidato a receber nó
     while((i >= 0) && (num < no->chave[i])) i--;
     i++; //acerta a posição caso i = -1 ou num > no->chave
-    printf("%s\n",no->filho[i]);
     TARV *filho = ler_mp(no->filho[i],t);
-    if(filho->nchaves == (2*t)-1){
+    if(filho->nchaves == ((2*t)-1)){
         // caso o candidato se encontre no limite, uma divisão é necessária
-        no = divisao(no,filho,i+1,t);
+        no = divisao(no,filho,(i+1),t);
         //caso o indice precise de correção após a divisão
         if(num > no->chave[i]) i++;
     }
@@ -332,27 +323,18 @@ void insere(char *arq,int num, int t){
     TARV *no = ler_mp(arq,t);
     // caso o no atual precise de divisão
     if(no->nchaves == (2*t)-1){
-printf("1\n");
-        char nomeraiz[NOME_MAX];
-        cria(-1,nomeraiz);
-printf("2\n");
         TARV *raiz = inicializa(t);
-printf("3\n");
         raiz->nchaves = 0;
-printf("3.25\n");
         strcpy(raiz->filho[0],no->nomearq);
-printf("3.5\n");
-        strcpy(raiz->nomearq,nomeraiz);
-printf("4\n");
+        raiz->qtdFilhos++;
         raiz = divisao(raiz,no,1,t);
-printf("5\n");
+        char nomeraiz[NOME_MAX];
+        cria(raiz->chave[0],nomeraiz);
+        strcpy(raiz->nomearq,nomeraiz);
         salva(no,no->nomearq);
         libera_no(no,t);
-printf("6\n");
         insere_aux(raiz,num,t);
-printf("7\n");
-        strcpy(arq,nomeraiz);
-printf("show\n");
+        strcpy(arq,raiz->nomearq);
         return;
     }
     insere_aux(no,num,t);
