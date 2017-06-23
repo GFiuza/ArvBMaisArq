@@ -54,7 +54,7 @@ TARV *ler_mp(char *arq, int t){
     for(i=0;i<novo->nchaves;i++)
         fread(&novo->chave[i],sizeof(int),1,fp);
     char nome[NOME_MAX];
-    while(ftell(fp)!=tam){
+    for(i=0;ftell(fp)!=tam;i++){
         fread(&nome,sizeof(char),NOME_MAX,fp);
         strcpy(novo->filho[i],nome);
         novo->qtdFilhos++;
@@ -354,7 +354,7 @@ int main(int argc, char *argv[]){
   char raiz[NOME_MAX];
   int num = 0, from, t;
   printf("Insira valor de t: \n");
-  scanf("%d\n",&t);
+  scanf("%d",&t);
   while(num != -1){
     printf("Digite um numero para adicionar. 0 para imprimir. -9 para remover e -1 para sair\n");
     scanf("%i", &num);
