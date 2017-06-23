@@ -29,12 +29,14 @@ TARV *inicializa(int t){
 }
 
 void libera_no(TARV *no, int t){
-    free(no->chave);
-    int i;
-    for(i=0; i < (2*t); i++)
-        free(no->filho[i]);
-    free(no->filho);
-    free(no);
+    if (no){
+        free(no->chave);
+        int i;
+        for(i=0; i < (2*t); i++)
+            free(no->filho[i]);
+        free(no->filho);
+        free(no);
+    }
 }
 
 TARV *ler_mp(char *arq, int t){
@@ -225,6 +227,7 @@ long int pos_primeiro_filho(FILE *fp){
 }
 
 void salva(TARV *no, char *nome){
+
     if(!no) return;
     FILE *fp = fopen(nome,"wb");
     if(!fp){
@@ -355,6 +358,54 @@ void insere(char *arq,int num, int t){
         return;
     }
     insere_aux(no,num,t);
+}
+
+void remover(char* narq, int num, int t){
+    if (!busca(narq, num, NULL)) return;
+    int i;
+    TARV* no = ler_mp(narq, t);
+    for(i = 0; i<no->nchaves && no->chave[i] < num; i++);
+    if (i < no->nchaves && no->chave[i] == num){ //Casos 1, 2A, 2B e 2C
+        if (!no->qtdFilhos){ //1
+
+        }
+        else{
+            TARV* aux = ler_mp(no->filho[i], t);
+            if (aux->nchaves >= t){ //2A
+
+            }
+            libera_no(aux, t);
+            TARV* aux2 = ler_mp(no->filho[i+1], t);
+            if (aux2->nchaves >= t){ //2B
+
+            }
+            if (aux2->nchaves == t-1 && aux->nchaves == t-1){ //2C
+
+            }
+            libera_no(aux2, t);
+        }
+    }
+    TARV *a, *b = NULL;
+    a = ler_mp(no->filho[i], t);
+    if (a->nchaves == t-1){ //3A 3B
+        TARV* c = ler_mp(no->filho[i+1], t);
+        if (i < no->nchaves && c->nchaves >=t){ //3A
+
+        }
+        libera_no(c, t);
+        TARV* d = ler_mp(no->filho[i-1], t);
+        if (i > 0 && (!b) && d->nchaves >=t){ //3A
+
+        }
+        libera_no(d, t);
+        if (!b){ //3B
+
+        }
+    }
+    libera_no(no, t);
+    libera_no(a, t);
+    libera_no(b, t);
+    remover(no->filho[i], num, t);
 }
 
 int main(int argc, char *argv[]){
