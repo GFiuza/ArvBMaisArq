@@ -586,6 +586,7 @@ int main(int argc, char *argv[]){
     if(num == -9){
       scanf("%d", &from);
       remover(raiz, from, t);
+      printf("\narquivo raiz: %s\n", raiz);
       imprime(raiz,0);
     }
     else if(num == -1){
@@ -594,7 +595,7 @@ int main(int argc, char *argv[]){
       return 0;
     }
     else if(!num){
-      printf("\n");
+      printf("\narquivo raiz: %s\n", raiz);
       imprime(raiz,0);
     }
     else insere(raiz, num, t);
