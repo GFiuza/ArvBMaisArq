@@ -273,14 +273,12 @@ TARV *divisao(TARV *a, TARV *b, int pos, int t){
     b->nchaves = t-1;
     for(i=a->nchaves;i>=pos;i--){
         strcpy(a->filho[i+1],a->filho[i]);
+        a->chave[i] = a->chave[i-1];
     }
     char nome_novo[NOME_MAX];
     salva(novo,nome_novo);
     strcpy(a->filho[pos],nome_novo);
     libera_no(novo,t);
-    for(i=a->nchaves;i>=pos;i--){
-        a->chave[i] = a->chave[i-1];
-    }
     a->qtdFilhos++;
     a->chave[pos-1] = b->chave[t-1];
     a->nchaves++;
@@ -310,11 +308,20 @@ void insere_aux(TARV *no, int num, int t){
     while((i >= 0) && (num < no->chave[i])) i--;
     i++; //acerta a posição caso i = -1 ou num > no->chave
     TARV *filho = ler_mp(no->filho[i],t);
+    int trocou_filho = 0;
     if(filho->nchaves == ((2*t)-1)){
         // caso o candidato se encontre no limite, uma divisão é necessária
         no = divisao(no,filho,(i+1),t);
         //caso o indice precise de correção após a divisão
-        if(num > no->chave[i]) i++;
+        if(num > no->chave[i]){
+            i++;
+            trocou_filho = 1;
+        }
+    }
+    if(trocou_filho){
+        salva(filho,filho->nomearq);
+        libera_no(filho,t);
+        filho = ler_mp(no->filho[i],t);
     }
     salva(no,no->nomearq);
     libera_no(no,t);
@@ -344,7 +351,7 @@ void insere(char *arq,int num, int t){
         salva(no,no->nomearq);
         libera_no(no,t);
         insere_aux(raiz,num,t);
-        strcpy(arq,raiz->nomearq);
+        strcpy(arq,nomeraiz);
         return;
     }
     insere_aux(no,num,t);
