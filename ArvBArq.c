@@ -32,8 +32,9 @@ void libera_no(TARV *no, int t){
     if (no){
         free(no->chave);
         int i;
-        for(i=0; i < (2*t); i++)
+        for(i=0; i < no->qtdFilhos; i++){
             free(no->filho[i]);
+        }
         free(no->filho);
         free(no);
     }
@@ -124,6 +125,7 @@ int retorna_filho(char* arq, int filho_n, char* strin){ //Testada. Está OK.
 void ler_arquivo(char* arq){ //Testada. Está OK.
     //imprime as chaves e seus filhos de um arquivo
     FILE *fp = fopen(arq, "rb");
+    if (!fp) return;
     int a, n;
     fread(&a, sizeof(int), 1, fp);
     printf("%d\n",a);
@@ -274,7 +276,7 @@ void ler_TARV(TARV *a)
     int i;
     printf("Chaves de %s: %d\n\n", a->nomearq, a->nchaves);
     for(i = 0; i < a->nchaves; i++) printf("%d\n",a->chave[i]);
-    printf("Filhos:");
+    printf("Filhos: %d\n\n", a->qtdFilhos);
     for(i = 0; i < a->qtdFilhos; i++) printf("%s\n",a->filho[i]);
     printf("\n\n");
 }
@@ -388,6 +390,7 @@ void insere(char *arq,int num, int t){
 
 void remover(char* narq, int num, int t){
     printf("Procurando no arquivo %s...\n", narq);
+    ler_arquivo(narq);
     if (!busca(narq, num, NULL, t)) {printf("%d nao encontrado no arvore\n", num);return;}
     int i;
     TARV* no = ler_mp(narq, t);
@@ -500,19 +503,28 @@ void remover(char* narq, int num, int t){
                 a->nchaves++;
                 no->chave[i] = b->chave[0];     //dar a arv uma chave de z
                 int j;
+                printf("Tudo antes do primeiro for esta OK...\n");
                 for(j=0; j < b->nchaves-1; j++)  //ajustar chaves de z
                     b->chave[j] = b->chave[j+1];
+                printf("Passou do primeiro for...\n");
                 a->filho[a->nchaves] = b->filho[0]; //enviar ponteiro menor de z para o novo elemento em y
-                for(j=0; j < b->nchaves; j++)       //ajustar filhos de z
+                for(j=0; j < b->qtdFilhos-1; j++)       //ajustar filhos de z
                     b->filho[j] = b->filho[j+1];
+                printf("Passou do segundo for...\n");
                 b->nchaves--;
+                b->qtdFilhos--;
+                free(b->filho[b->qtdFilhos]);
                 char nome_filho[NOME_MAX];
                 strcpy(nome_filho, no->filho[i]);
+                printf("Deu o strcpy...\n");
                 salva(no, narq);
-                salva(a, no->filho[i]);
-                salva(b, no->filho[i+1]);
+                salva(a, a->nomearq);
+                salva(b, b->nomearq);
+                printf("Salvou...\n");
                 libera_no(no, t);
+                printf("Liberou no..\n");
                 libera_no(a, t);
+                printf("iberou a...\n");
                 libera_no(b, t);
                 printf("Chamando recursivamente...\n");
                 remover(nome_filho, num, t);
@@ -540,8 +552,8 @@ void remover(char* narq, int num, int t){
                 char nome_filho[NOME_MAX];
                 strcpy(nome_filho, no->filho[i]);
                 salva(no, narq);
-                salva(a, no->filho[i]);
-                salva(b, no->filho[i-1]);
+                salva(a, a->nomearq);
+                salva(b, b->nomearq);
                 libera_no(no, t);
                 libera_no(a, t);
                 libera_no(b, t);
@@ -579,8 +591,8 @@ void remover(char* narq, int num, int t){
                     }
                     no->nchaves--;
                     salva(no, narq);
-                    salva(a, no->filho[i]);
-                    salva(b, no->filho[i+1]);
+                    salva(a, a->nomearq);
+                    salva(b, b->nomearq);
                     libera_no(no, t);
                     libera_no(a, t);
                     libera_no(b, t);
@@ -615,8 +627,8 @@ void remover(char* narq, int num, int t){
                     no->nchaves--;
                     no->filho[i-1] = b->nomearq;
                     salva(no, narq);
-                    salva(a, no->filho[i]);
-                    salva(b, no->filho[i-1]);
+                    salva(a, a->nomearq);
+                    salva(b, b->nomearq);
                     libera_no(no, t);
                     libera_no(a, t);
                     libera_no(b, t);
