@@ -273,11 +273,11 @@ void salva(TARV *no, char *nome){
 void ler_TARV(TARV *a)
 {
     int i;
-    printf("Chaves de %s: %d\n\n", a->nomearq, a->nchaves);
+    printf("Chaves de %s: %d\n", a->nomearq, a->nchaves);
     for(i = 0; i < a->nchaves; i++) printf("%d\n",a->chave[i]);
-    printf("Filhos:");
+    printf("Filhos: %d\n", a->qtdFilhos);
     for(i = 0; i < a->qtdFilhos; i++) printf("%s\n",a->filho[i]);
-    printf("\n\n");
+    //printf("\n\n");
 }
 
 TARV *divisao(TARV *a, TARV *b, int pos, int t){
@@ -390,11 +390,16 @@ void insere(char *arq,int num, int t){
 void remover(char* narq, int num, int t){
     printf("Remocao da chave %d\n", num);
     printf("Procurando no arquivo %s...\n", narq);
+    printf("----------\n");
     ler_arquivo(narq);
+    printf("----------\n");
     if (!busca(narq, num, NULL, t)) {printf("%d nao encontrado no arvore\n", num);return;}
     int i;
     TARV* no = ler_mp(narq, t);
-    printf("No foi lido...\n");
+    printf("No foi lido:\n");
+    printf("----------\n");
+    ler_TARV(no);
+    printf("----------\n");
     for(i = 0; (i < no->nchaves) && (no->chave[i] < num); i++);
     printf("Variavel i com valor %d...\n", i);
     if (i < no->nchaves && no->chave[i] == num){ //Casos 1, 2A, 2B e 2C
@@ -414,10 +419,15 @@ void remover(char* narq, int num, int t){
             if (aux->nchaves >= t){ //2A
                 printf("CASO 2A\n");
                 TARV* a = aux;
+                printf("Pegando o arquivo %s...\n", a->nomearq);
+                printf("----------\n");
+                ler_TARV(a);
+                printf("----------\n");
                 char nome_filho[NOME_MAX];
                 while(a->qtdFilhos){
-                    strcpy(nome_filho, a->filho[a->nchaves]);
+                    strcpy(nome_filho, a->filho[a->qtdFilhos-1]);
                     libera_no(a, t);
+                    printf("Pegando o arquivo %s...\n", nome_filho);
                     a = ler_mp(nome_filho, t);
                 }
                 printf("Passou do while...\n");
@@ -526,13 +536,11 @@ void remover(char* narq, int num, int t){
                 int j;
                 for(j=0; j < b->nchaves-1; j++)  //ajustar chaves de z
                     b->chave[j] = b->chave[j+1];
-                printf("Passou do primeiro for...\n");
-                strcmp(a->filho[a->nchaves],b->filho[0]); //enviar ponteiro menor de z para o novo elemento em y
-                for(j=0; j < b->nchaves; j++)       //ajustar filhos de z
+                strcpy(a->filho[a->nchaves],b->filho[0]); //enviar ponteiro menor de z para o novo elemento em y
+                for(j=0; j < b->qtdFilhos-1; j++)       //ajustar filhos de z
                     strcpy(b->filho[j],b->filho[j+1]);
-                printf("Passou do segundo for...\n");
-                a->qtdFilhos++;
                 b->nchaves--;
+                a->qtdFilhos++;
                 b->qtdFilhos--;
                 char nome_filho[NOME_MAX];
                 strcpy(nome_filho, no->filho[i]);
