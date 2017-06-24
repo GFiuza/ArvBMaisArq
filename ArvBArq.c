@@ -45,7 +45,7 @@ TARV *ler_mp(char *arq, int t){
         retorna o no com os dados do arq
     */
     FILE *fp = fopen(arq,"rb");
-    if(!fp){printf("OPA\n"); exit(1);}
+    if(!fp){printf("nao foi possivel abrir o arquivo %s\n", arq); exit(1);}
     fseek(fp,0L,SEEK_END);
     int tam = ftell(fp);
     fseek(fp,0L,SEEK_SET);
@@ -183,12 +183,35 @@ void imprime(char *narq, int andar){ //Testada. Está OK.
         imprime(filho,andar+1);
 }
 
-int busca(char* narq, int ch, char* resp){ //Testada. Está OK.
+int busca(char* narq, int num, char* resp, int t){ //Testada. Está OK.
     /*busca onde uma certa chave está localizada
      *se existir retorna 1, e modifica resp como o nome do arquivo onde se encontra a chave
      *se o arquivo não existir, retorna -1
      *caso contrário, retorna 0
      */
+     FILE* f = fopen(narq, "rb");
+     if (!f) return 0;
+     close(f);
+     TARV* no = ler_mp(narq, t);
+     int i;
+     for (i = 0; i < no->nchaves; i++){
+        if (no->chave[i] == num){
+            if (resp)
+                strcpy(resp, narq);
+            libera_no(no, t);
+            return 1;
+        }
+        else if (no->chave[i] > num) break;
+     }
+     if (!no->qtdFilhos){
+        libera_no(no, t);
+        return 0;
+     }
+     char nome_filho[NOME_MAX];
+     strcpy(nome_filho, no->filho[i]);
+     libera_no(no, t);
+     return busca(nome_filho, num, resp, t);
+     /*
     FILE *f = fopen(narq, "rb");
     if (!f) return 0;
     int nchaves, filho = 0, n, i;
@@ -209,6 +232,7 @@ int busca(char* narq, int ch, char* resp){ //Testada. Está OK.
     char temp[NOME_MAX];
     fread(temp, sizeof(char), NOME_MAX, f);
     return busca(temp, ch, resp);
+    */
 }
 
 long int pos_primeiro_filho(FILE *fp){
@@ -332,8 +356,10 @@ void insere_aux(TARV *no, int num, int t){
 }
 
 void insere(char *arq,int num, int t){
-    if(busca(arq,num,NULL))
+    if(busca(arq,num,NULL, t)){
+        //printf("FON\n");
         return;
+    }
     FILE *existe = fopen(arq,"rb");
     if(!existe){
         cria(num,arq);
@@ -361,8 +387,8 @@ void insere(char *arq,int num, int t){
 }
 
 void remover(char* narq, int num, int t){
-    printf("Procurando no arquivo %s...", narq);
-    if (!busca(narq, num, NULL)) {printf("%d nao encontrado no arvore\n", num);return;}
+    printf("Procurando no arquivo %s...\n", narq);
+    if (!busca(narq, num, NULL, t)) {printf("%d nao encontrado no arvore\n", num);return;}
     int i;
     TARV* no = ler_mp(narq, t);
     for(i = 0; i<no->nchaves && no->chave[i] < num; i++);
