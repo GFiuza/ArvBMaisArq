@@ -506,6 +506,7 @@ void remover(char* narq, int num, int t){
                 a->filho[a->nchaves] = b->filho[0]; //enviar ponteiro menor de z para o novo elemento em y
                 for(j=0; j < b->nchaves; j++)       //ajustar filhos de z
                     b->filho[j] = b->filho[j+1];
+                a->qtdFilhos++;
                 b->nchaves--;
                 b->qtdFilhos--;
                 char nome_filho[NOME_MAX];
@@ -513,7 +514,6 @@ void remover(char* narq, int num, int t){
                 salva(no, no->nomearq);
                 salva(a, a->nomearq);
                 salva(b, b->nomearq);
-                imprime(no->nomearq,0);
                 libera_no(no, t);
                 libera_no(a, t);
                 libera_no(b, t);
