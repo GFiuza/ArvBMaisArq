@@ -391,8 +391,11 @@ void remover(char* narq, int num, int t){
     if (!busca(narq, num, NULL, t)) {printf("%d nao encontrado no arvore\n", num);return;}
     int i;
     TARV* no = ler_mp(narq, t);
-    for(i = 0; i<no->nchaves && no->chave[i] < num; i++);
+    printf("No foi lido...\n");
+    for(i = 0; (i < no->nchaves) && (no->chave[i] < num); i++);
+    printf("Variavel i foi setada...\n");
     if (i < no->nchaves && no->chave[i] == num){ //Casos 1, 2A, 2B e 2C
+        printf("Verificando se e caso 1 ou um dos casos 2...\n");
         if (!no->qtdFilhos){ //1
             printf("\nCASO 1\n");
             int j;
@@ -433,13 +436,18 @@ void remover(char* narq, int num, int t){
                     a = ler_mp(nome_filho, t);
                 }
                 int temp = a->chave[0];
+                printf("Foi ate aqui...\n");
                 libera_no(a, t);
                 libera_no(aux, t);
                 libera_no(aux2, t);
+                printf("Foi ate aqui...\n");
                 remover(no->filho[i+1], temp, t);
+                printf("Foi ate aqui...\n");
                 no->chave[i] = temp;
                 salva(no, narq);
+                printf("Foi ate aqui...\n");
                 libera_no(no, t);
+                printf("Foi ate aqui...\n");
                 return;
             }
             if (aux2->nchaves == t-1 && aux->nchaves == t-1){ //2C
@@ -476,125 +484,148 @@ void remover(char* narq, int num, int t){
             libera_no(aux2, t);
         }
     }
+    printf("Nao e caso 1 nem 2...\n");
     TARV *a, *b = NULL;
     a = ler_mp(no->filho[i], t);
+    printf("Leu o filho i...\n");
     if (a->nchaves == t-1){ //3A 3B
-        TARV* c = ler_mp(no->filho[i+1], t);
-        if (i < no->nchaves && c->nchaves >=t){ //3A
-            printf("\nCASO 3A: i menor que nchaves\n");
-            b = c;
-            a->chave[t-1] = no->chave[i];   //dar a y a chave i da arv
-            a->nchaves++;
-            no->chave[i] = b->chave[0];     //dar a arv uma chave de z
-            int j;
-            for(j=0; j < b->nchaves-1; j++)  //ajustar chaves de z
-                b->chave[j] = b->chave[j+1];
-            a->filho[a->nchaves] = b->filho[0]; //enviar ponteiro menor de z para o novo elemento em y
-            for(j=0; j < b->nchaves; j++)       //ajustar filhos de z
-                b->filho[j] = b->filho[j+1];
-            b->nchaves--;
-            char nome_filho[NOME_MAX];
-            strcpy(nome_filho, no->filho[i]);
-            salva(no, narq);
-            salva(a, narq);
-            salva(b, narq);
-            libera_no(no, t);
-            libera_no(a, t);
-            libera_no(b, t);
-            remover(nome_filho, num, t);
-            return;
-        }
-        TARV* d = ler_mp(no->filho[i-1], t);
-        if (i > 0 && (!b) && d->nchaves >=t){ //3A
-            printf("\nCASO 3A: i igual a nchaves\n");
-            b = d;
-            int j;
-            for(j = a->nchaves; j>0; j--)               //encaixar lugar da nova chave
-                a->chave[j] = a->chave[j-1];
-            for(j = a->nchaves+1; j>0; j--)             //encaixar lugar dos filhos da nova chave
-                a->filho[j] = a->filho[j-1];
-            a->chave[0] = no->chave[i-1];              //dar a y a chave i da arv
-            a->nchaves++;
-            no->chave[i-1] = b->chave[b->nchaves-1];   //dar a arv uma chave de z
-            a->filho[0] = b->filho[b->nchaves];         //enviar ponteiro de z para o novo elemento em y
-            b->nchaves--;
-            char nome_filho[NOME_MAX];
-            strcpy(nome_filho, no->filho[i]);
-            salva(no, narq);
-            salva(a, narq);
-            salva(b, narq);
-            libera_no(no, t);
-            libera_no(a, t);
-            libera_no(b, t);
-            libera_no(c, t);
-            remover(nome_filho, num, t);
-            return;
-        }
-        if (!b){ //3B
-            if(i < no->nchaves && c->nchaves == t-1){
-                printf("\nCASO 3B: i menor que nchaves\n");
+        printf("Verificando se e o caso 3A...\n");
+        //if (i < no->nchaves && c->nchaves >=t){ //3A
+        if (i < no->nchaves){
+            TARV* c = ler_mp(no->filho[i+1], t);
+            printf("Filho i+1 foi lido...\n");
+            if (c->nchaves >=t){ //3A
+                printf("\nCASO 3A: i menor que nchaves\n");
                 b = c;
-                a->chave[t-1] = no->chave[i];     //pegar chave [i] e coloca ao final de filho[i]
+                a->chave[t-1] = no->chave[i];   //dar a y a chave i da arv
                 a->nchaves++;
+                no->chave[i] = b->chave[0];     //dar a arv uma chave de z
                 int j;
-                for(j=0; j < t-1; j++){
-                    a->chave[t+j] = b->chave[j];     //passar filho[i+1] para filho[i]
-                    a->nchaves++;
-                }
-                if(a->qtdFilhos){
-                    for(j=0; j<t; j++){
-                        a->filho[t+j] = b->filho[j];
-                    }
-                }
-                for(j=i; j < no->nchaves-1; j++){ //limpar referências de i
-                    no->chave[j] = no->chave[j+1];
-                    no->filho[j+1] = no->filho[j+2];
-                }
-                no->nchaves--;
+                for(j=0; j < b->nchaves-1; j++)  //ajustar chaves de z
+                    b->chave[j] = b->chave[j+1];
+                a->filho[a->nchaves] = b->filho[0]; //enviar ponteiro menor de z para o novo elemento em y
+                for(j=0; j < b->nchaves; j++)       //ajustar filhos de z
+                    b->filho[j] = b->filho[j+1];
+                b->nchaves--;
+                char nome_filho[NOME_MAX];
+                strcpy(nome_filho, no->filho[i]);
                 salva(no, narq);
                 salva(a, narq);
                 salva(b, narq);
                 libera_no(no, t);
                 libera_no(a, t);
                 libera_no(b, t);
-                libera_no(d, t);
-                remover(narq, num, t);
+                remover(nome_filho, num, t);
                 return;
             }
-            if((i > 0) && (d->nchaves == t-1)){
-                printf("\nCASO 3B: i igual a nchaves\n");
+            libera_no(c, t);
+        }
+        //if (i > 0 && (!b) && d->nchaves >=t){ //3A
+        if (i > 0 && (!b)){
+            TARV* d = ler_mp(no->filho[i-1], t);
+            printf("Filho i-1 foi lido...\n");
+            if (d->nchaves >=t){ //3A
+                printf("\nCASO 3A: i igual a nchaves\n");
                 b = d;
-                if(i == no->nchaves)
-                    b->chave[t-1] = no->chave[i-1]; //pegar chave[i] e poe ao final de filho[i-1]
-                else
-                    b->chave[t-1] = no->chave[i];   //pegar chave [i] e poe ao final de filho[i-1]
-                b->nchaves++;
                 int j;
-                for(j=0; j < t-1; j++){
-                    b->chave[t+j] = a->chave[j];     //passar filho[i+1] para filho[i]
-                    b->nchaves++;
-                }
-                if(b->qtdFilhos){
-                    for(j=0; j<t; j++){
-                        b->filho[t+j] = a->filho[j];
-                    }
-                }
-                no->nchaves--;
-                no->filho[i-1] = b->nomearq;
+                for(j = a->nchaves; j>0; j--)               //encaixar lugar da nova chave
+                    a->chave[j] = a->chave[j-1];
+                for(j = a->nchaves+1; j>0; j--)             //encaixar lugar dos filhos da nova chave
+                    a->filho[j] = a->filho[j-1];
+                a->chave[0] = no->chave[i-1];              //dar a y a chave i da arv
+                a->nchaves++;
+                no->chave[i-1] = b->chave[b->nchaves-1];   //dar a arv uma chave de z
+                a->filho[0] = b->filho[b->nchaves];         //enviar ponteiro de z para o novo elemento em y
+                b->nchaves--;
+                char nome_filho[NOME_MAX];
+                strcpy(nome_filho, no->filho[i]);
                 salva(no, narq);
                 salva(a, narq);
                 salva(b, narq);
                 libera_no(no, t);
                 libera_no(a, t);
                 libera_no(b, t);
-                libera_no(c, t);
-                remover(narq, num, t);
+                remover(nome_filho, num, t);
                 return;
+            }
+            libera_no(d, t);
+        }
+        printf("Nao e o caso 3A\n");
+        if (!b){ //3B
+            printf("Verificando se e o caso 3B...\n");
+            //if(i < no->nchaves && c->nchaves == t-1){
+            if(i < no->nchaves){
+                TARV* c = ler_mp(no->filho[i+1], t);
+                printf("Filho i+1 foi lido...\n");
+                if (c->nchaves == t-1){
+                    printf("\nCASO 3B: i menor que nchaves\n");
+                    b = c;
+                    a->chave[t-1] = no->chave[i];     //pegar chave [i] e coloca ao final de filho[i]
+                    a->nchaves++;
+                    int j;
+                    for(j=0; j < t-1; j++){
+                        a->chave[t+j] = b->chave[j];     //passar filho[i+1] para filho[i]
+                        a->nchaves++;
+                    }
+                    if(a->qtdFilhos){
+                        for(j=0; j<t; j++){
+                            a->filho[t+j] = b->filho[j];
+                        }
+                    }
+                    for(j=i; j < no->nchaves-1; j++){ //limpar referências de i
+                        no->chave[j] = no->chave[j+1];
+                        no->filho[j+1] = no->filho[j+2];
+                    }
+                    no->nchaves--;
+                    salva(no, narq);
+                    salva(a, narq);
+                    salva(b, narq);
+                    libera_no(no, t);
+                    libera_no(a, t);
+                    libera_no(b, t);
+                    remover(narq, num, t);
+                    return;
+                }
+                libera_no(c, t);
+            }
+            //if((i > 0) && (d->nchaves == t-1)){
+            if (i > 0){
+                TARV* d = ler_mp(no->filho[i-1], t);
+                printf("Filho i-1 foi lido...\n");
+                if (d->nchaves == t-1){
+                    printf("\nCASO 3B: i igual a nchaves\n");
+                    b = d;
+                    if(i == no->nchaves)
+                        b->chave[t-1] = no->chave[i-1]; //pegar chave[i] e poe ao final de filho[i-1]
+                    else
+                        b->chave[t-1] = no->chave[i];   //pegar chave [i] e poe ao final de filho[i-1]
+                    b->nchaves++;
+                    int j;
+                    for(j=0; j < t-1; j++){
+                        b->chave[t+j] = a->chave[j];     //passar filho[i+1] para filho[i]
+                        b->nchaves++;
+                    }
+                    if(b->qtdFilhos){
+                        for(j=0; j<t; j++){
+                            b->filho[t+j] = a->filho[j];
+                        }
+                    }
+                    no->nchaves--;
+                    no->filho[i-1] = b->nomearq;
+                    salva(no, narq);
+                    salva(a, narq);
+                    salva(b, narq);
+                    libera_no(no, t);
+                    libera_no(a, t);
+                    libera_no(b, t);
+                    remover(narq, num, t);
+                    return;
+                }
+                libera_no(d, t);
             }
         }
-        libera_no(c, t);
-        libera_no(d, t);
     }
+    printf("Nao e nenhum dos casos. Hora de proseguir...\n");
     libera_no(no, t);
     libera_no(a, t);
     libera_no(b, t);
