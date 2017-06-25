@@ -666,17 +666,34 @@ void remover(char* narq, int num, int t){
                     for(j=0; j < t-1; j++){
                         b->chave[t+j] = a->chave[j];     //passar filho[i+1] para filho[i]
                         b->nchaves++;
+                        a->chave--;
                     }
                     if(b->qtdFilhos){
                         for(j=0; j<t; j++){
                             strcpy(b->filho[t+j],a->filho[j]);
+                            b->qtdFilhos++;
+                            a->qtdFilhos--;
                         }
                     }
                     no->nchaves--;
-                    strcpy(no->filho[i-1],b->nomearq);
-                    salva(no, narq);
-                    salva(a, a->nomearq);
-                    salva(b, b->nomearq);
+                    if(no->nchaves==0)
+                    {
+                        salva(b,no->nomearq);
+                        remove(b->nomearq);
+                    }
+                    else
+                    {
+                        salva(no, narq);
+                        salva(a, a->nomearq);
+                    }
+                    if(a->nchaves==0)
+                    {
+                        remove(a->nomearq);
+                    }
+                    else
+                    {
+                        salva(b, b->nomearq);
+                    }
                     libera_no(no, t);
                     libera_no(a, t);
                     libera_no(b, t);
