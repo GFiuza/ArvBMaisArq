@@ -491,7 +491,7 @@ void remover(char* narq, int num, int t){
                     strcpy(no->filho[j],no->filho[j+1]);
                 }
                 printf("Passou do quarto for...\n");
-                //no->qtdFilhos--; será que devo?
+                no->qtdFilhos--;
                 no->nchaves--;
                 if(no->nchaves == 0)
                 {
@@ -542,13 +542,20 @@ void remover(char* narq, int num, int t){
                 no->chave[i] = b->chave[0];     //dar a arv uma chave de z
                 int j;
                 for(j=0; j < b->nchaves-1; j++)  //ajustar chaves de z
+                {
                     b->chave[j] = b->chave[j+1];
-                strcpy(a->filho[a->nchaves],b->filho[0]); //enviar ponteiro menor de z para o novo elemento em y
-                for(j=0; j < b->qtdFilhos-1; j++)       //ajustar filhos de z
-                    strcpy(b->filho[j],b->filho[j+1]);
+                }
                 b->nchaves--;
-                a->qtdFilhos++;
-                b->qtdFilhos--;
+                if(b->qtdFilhos>0)
+                {
+                    strcpy(a->filho[a->nchaves],b->filho[0]); //enviar ponteiro menor de z para o novo elemento em y
+                    a->qtdFilhos++;
+                    b->qtdFilhos--;
+                }
+                for(j=0; j < b->qtdFilhos-1; j++)       //ajustar filhos de z
+                {
+                    strcpy(b->filho[j],b->filho[j+1]);
+                }
                 char nome_filho[NOME_MAX];
                 strcpy(nome_filho, no->filho[i]);
                 salva(no, no->nomearq);
@@ -573,12 +580,20 @@ void remover(char* narq, int num, int t){
                 int j;
                 for(j = a->nchaves; j>0; j--)               //encaixar lugar da nova chave
                     a->chave[j] = a->chave[j-1];
-                for(j = a->nchaves+1; j>0; j--)             //encaixar lugar dos filhos da nova chave
-                    strcpy(a->filho[j],a->filho[j-1]);
+                if(a->qtdFilhos>0)
+                {
+                    a->qtdFilhos++;
+                    for(j = a->nchaves+1; j>0; j--)             //encaixar lugar dos filhos da nova chave
+                        strcpy(a->filho[j],a->filho[j-1]);
+                }
                 a->chave[0] = no->chave[i-1];              //dar a y a chave i da arv
                 a->nchaves++;
                 no->chave[i-1] = b->chave[b->nchaves-1];   //dar a arv uma chave de z
-                strcpy(a->filho[0],b->filho[b->nchaves]); //enviar ponteiro de z para o novo elemento em y
+                if(b->qtdFilhos>0)
+                {
+                    strcpy(a->filho[0],b->filho[b->nchaves]); //enviar ponteiro de z para o novo elemento em y
+                    b->qtdFilhos--;
+                }
                 b->nchaves--;
                 char nome_filho[NOME_MAX];
                 strcpy(nome_filho, no->filho[i]);
