@@ -123,10 +123,11 @@ int retorna_filho(char* arq, int filho_n, char* strin){ //Testada. Está OK.
 
 void ler_arquivo(char* arq){ //Testada. Está OK.
     //imprime as chaves e seus filhos de um arquivo
+    printf("\n");
     FILE *fp = fopen(arq, "rb");
     int a, n;
     fread(&a, sizeof(int), 1, fp);
-    printf("%d\n",a);
+    printf("%s\nN Chaves: %d\n",arq,a);
     int i = 1;
     while(i <= a)
     {
@@ -135,9 +136,11 @@ void ler_arquivo(char* arq){ //Testada. Está OK.
         i++;
     }
     char saidaaqui[25];
-    int leu = 1;
+    int leu;
     i=0;
     leu = retorna_filho(arq, i, saidaaqui);
+    if(leu) printf("Nao eh folha\nFilhos: \n");
+    else printf("Eh folha\n");
     while(leu)
     {
         printf("%s\n",saidaaqui);
@@ -145,6 +148,7 @@ void ler_arquivo(char* arq){ //Testada. Está OK.
         leu = retorna_filho(arq, i, saidaaqui);
     }
     fclose(fp);
+    printf("\n");
 }
 
 void libera(char *arq){
@@ -714,15 +718,25 @@ void remover(char* narq, int num, int t){
     remover(prox, num, t);
 }
 
-int main(int argc, char *argv[]){
+void imprime_tds_arq(){
+    int i;
+    char nome[NOME_MAX];
+    for(i=1;i<n_arq;i++){
+        sprintf(nome,"%d",i);
+        strcat(nome,".dat");
+        ler_arquivo(nome);
+    }
+}
+
+int main(){
   char raiz[NOME_MAX];
   int num = 0, from, t;
   printf("Insira valor de t: \n");
   scanf("%d",&t);
   while(num != -1){
-    printf("Digite um numero para adicionar. 0 para imprimir. -9 para remover e -1 para sair\n");
+    printf("Digite um numero para adicionar. 0 para imprimir. -2 para exibir os arquivos, -3 para remover e -1 para sair\n");
     scanf("%i", &num);
-    if(num == -9){
+    if(num == -3){
       scanf("%d", &from);
       remover(raiz, from, t);
       printf("\narquivo raiz: %s\n", raiz);
@@ -731,7 +745,11 @@ int main(int argc, char *argv[]){
     else if(num == -1){
       printf("\n");
       imprime(raiz,0);
+      libera(raiz);
       return 0;
+    }
+    else if(num == -2){
+        imprime_tds_arq();
     }
     else if(!num){
       printf("\narquivo raiz: %s\n", raiz);
