@@ -552,7 +552,7 @@ void remover(char* narq, int num, int t){
                     a->qtdFilhos++;
                     b->qtdFilhos--;
                 }
-                for(j=0; j < b->qtdFilhos-1; j++)       //ajustar filhos de z
+                for(j=0; j < b->qtdFilhos; j++)       //ajustar filhos de z
                 {
                     strcpy(b->filho[j],b->filho[j+1]);
                 }
@@ -578,12 +578,12 @@ void remover(char* narq, int num, int t){
                 printf("CASO 3A: i igual a nchaves\n");
                 b = d;
                 int j;
-                for(j = a->nchaves; j>0; j--)               //encaixar lugar da nova chave
+                for(j = a->nchaves; j>0; j--)  //encaixar lugar da nova chave
                     a->chave[j] = a->chave[j-1];
                 if(a->qtdFilhos>0)
                 {
                     a->qtdFilhos++;
-                    for(j = a->nchaves+1; j>0; j--)             //encaixar lugar dos filhos da nova chave
+                    for(j = a->nchaves+1; j>0; j--) //encaixar lugar dos filhos da nova chave
                         strcpy(a->filho[j],a->filho[j-1]);
                 }
                 a->chave[0] = no->chave[i-1];              //dar a y a chave i da arv
