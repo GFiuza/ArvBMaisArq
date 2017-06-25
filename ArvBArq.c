@@ -409,7 +409,10 @@ void remover(char* narq, int num, int t){
             int j;
             for(j=i; j<no->nchaves-1;j++) no->chave[j] = no->chave[j+1];
             no->nchaves--;
-            salva(no, narq);
+            if(no->nchaves == 0)
+                remove(narq);
+            else
+                salva(no, narq);
             libera_no(no, t);
             printf("Remocao concluida!\n");
             return;
@@ -603,10 +606,13 @@ void remover(char* narq, int num, int t){
                     for(j=0; j < t-1; j++){
                         a->chave[t+j] = b->chave[j];     //passar filho[i+1] para filho[i]
                         a->nchaves++;
+                        b->nchaves--;
                     }
                     if(a->qtdFilhos){
                         for(j=0; j<t; j++){
                             strcpy(a->filho[t+j],b->filho[j]);
+                            a->qtdFilhos++;
+                            b->qtdFilhos--;
                         }
                     }
                     for(j=i; j < no->nchaves-1; j++){ //limpar referências de i
@@ -615,9 +621,24 @@ void remover(char* narq, int num, int t){
                     }
                     no->nchaves--;
                     no->qtdFilhos--; //Devo?
-                    salva(no, narq);
-                    salva(a, a->nomearq);
-                    salva(b, b->nomearq);
+                    if(no->nchaves == 0)
+                    {
+                        salva(a, no->nomearq);
+                        remove(a->nomearq);
+                    }
+                    else
+                    {
+                        salva(no, narq);
+                        salva(a,a->nomearq);
+                    }
+                    if(b->nchaves == 0)
+                    {
+                        remove(b->nomearq);
+                    }
+                    else
+                    {
+                        salva(b,b->nomearq);
+                    }
                     printf("Novo no:\n");
                     ler_arquivo(narq); //Devo?
                     libera_no(no, t);
