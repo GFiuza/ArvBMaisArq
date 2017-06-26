@@ -160,7 +160,7 @@ void libera(char *arq){
         ind++;
         acao = retorna_filho(arq,ind,nome_filho);
     }
-    remove(arq);
+	remove(arq);
 }
 
 void imprime(char *narq, int andar){ //Testada. Está OK.
@@ -258,10 +258,6 @@ void salva(TARV *no, char *nome){
 
     if(!no) return;
     FILE *fp = fopen(nome,"wb");
-    if(!fp){
-        cria(no->chave[0],nome);
-        fp = fopen(nome,"wb");
-    }
     fwrite(&no->nchaves,sizeof(int),1,fp);
     int i;
     for(i=0;i<no->nchaves;i++)
@@ -308,6 +304,7 @@ TARV *divisao(TARV *a, TARV *b, int pos, int t){
         a->chave[i] = a->chave[i-1];
     }
     char nome_novo[NOME_MAX];
+	cria(novo->chave[0],nome_novo);
     salva(novo,nome_novo);
     strcpy(a->filho[pos],nome_novo);
     libera_no(novo,t);
@@ -377,11 +374,11 @@ void insere(char *arq,int num, int t){
         TARV *raiz = inicializa(t);
         raiz->nchaves = 0;
         strcpy(raiz->filho[0],no->nomearq);
+        char nomeraiz[NOME_MAX];
+		cria(-1,nomeraiz);
+        strcpy(raiz->nomearq,nomeraiz);
         raiz->qtdFilhos++;
         raiz = divisao(raiz,no,1,t);
-        char nomeraiz[NOME_MAX];
-        cria(raiz->chave[0],nomeraiz);
-        strcpy(raiz->nomearq,nomeraiz);
         salva(no,no->nomearq);
         libera_no(no,t);
         insere_aux(raiz,num,t);
@@ -764,6 +761,9 @@ int main(){
     else if(num == -1){
       printf("\n");
       imprime(raiz,0);
+	  FILE *fp = fopen(raiz,"rb");
+	  if(!fp) return 0;
+	  fclose(fp);
       libera(raiz);
       return 0;
     }
