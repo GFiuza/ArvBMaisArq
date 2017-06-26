@@ -6,7 +6,7 @@
 int n_arq = 1;
 
 typedef struct no{
-    // definiÁ„o da estrutura respons·vel por capturar um nÛ da arvore
+    // defini√ß√£o da estrutura respons√°vel por capturar um n√≥ da arvore
     int nchaves;
     int qtdFilhos;
     int *chave;
@@ -15,7 +15,7 @@ typedef struct no{
 }TARV;
 
 TARV *inicializa(int t){
-    // respons·vel por iniciar um nÛ vazio
+    // respons√°vel por iniciar um n√≥ vazio
     TARV *novo = (TARV*)malloc(sizeof(TARV));
     novo->nchaves = 0;
     novo->qtdFilhos = 0;
@@ -41,7 +41,7 @@ void libera_no(TARV *no, int t){
 
 TARV *ler_mp(char *arq, int t){
     /*
-        funÁ„o respons·vel por ler um nÛ para MP
+        fun√ß√£o respons√°vel por ler um n√≥ para MP
         retorna o no com os dados do arq
     */
     FILE *fp = fopen(arq,"rb");
@@ -67,14 +67,14 @@ TARV *ler_mp(char *arq, int t){
 
 void cria (int num, char *nomee)
 {
-    /*Esta funÁ„o cria um arquivo de nome "n_arq.dat" com uma ˙nica chave dentro dele (a chave "num").
+    /*Esta fun√ß√£o cria um arquivo de nome "n_arq.dat" com uma √∫nica chave dentro dele (a chave "num").
      *formato do arquivo criado:
     +-------+
     |1      |
     |num    |
     +-------+
-     *onde 1 È o n˙mero de chave do arquivo
-     *num È a chave criada
+     *onde 1 √© o n√∫mero de chave do arquivo
+     *num √© a chave criada
      */
     int ni  = 1;
     //if (n_arq != 0)
@@ -90,7 +90,7 @@ void cria (int num, char *nomee)
     fclose(fp);
     return;
     //}
-    //esta parte do cÛdigo cria o arquivo chamado "raiz.dat", mas resolvemos n„o utilizar esta parte
+    //esta parte do c√≥digo cria o arquivo chamado "raiz.dat", mas resolvemos n√£o utilizar esta parte
     /*FILE *fp = fopen("raiz.dat", "wb");
     fwrite(&ni,sizeof(int),1,fp);
     fwrite(&num,sizeof(int),1,fp);
@@ -99,13 +99,13 @@ void cria (int num, char *nomee)
     strcpy(nomee,"raiz.dat");*/
 }
 
-int retorna_filho(char* arq, int filho_n, char* strin){ //Testada. Est· OK.
-    /*esta funÁ„o retorna se um certo filho_n do nÛ dado existe
+int retorna_filho(char* arq, int filho_n, char* strin){ //Testada. Est√° OK.
+    /*esta fun√ß√£o retorna se um certo filho_n do n√≥ dado existe
      *caso exista, retorna 1, e modifica strin para ter o nome deste filho
-     *caso n„o exista, apenas retorna 0
-     *filho n precisa ser um valor de 0 atÈ o fator de ramificaÁ„o, caso contr·rio ir· retornar 0 sempre
-     *funÁ„o foi feita para contornar o problema de um certo n˙mero m·ximo de arquivos aberto ao mesmo tempo
-     *desta forma È possÌvel fazer chamadas recursivas sem abrir arquivos a cada chamada
+     *caso n√£o exista, apenas retorna 0
+     *filho n precisa ser um valor de 0 at√© o fator de ramifica√ß√£o, caso contr√°rio ir√° retornar 0 sempre
+     *fun√ß√£o foi feita para contornar o problema de um certo n√∫mero m√°ximo de arquivos aberto ao mesmo tempo
+     *desta forma √© poss√≠vel fazer chamadas recursivas sem abrir arquivos a cada chamada
      */
     FILE *fp = fopen(arq, "rb");
     int num_filhos_total;
@@ -121,7 +121,7 @@ int retorna_filho(char* arq, int filho_n, char* strin){ //Testada. Est· OK.
     return 1;
 }
 
-void ler_arquivo(char* arq){ //Testada. Est· OK.
+void ler_arquivo(char* arq){ //Testada. Est√° OK.
     //imprime as chaves e seus filhos de um arquivo
     printf("\n");
     FILE *fp = fopen(arq, "rb");
@@ -163,7 +163,7 @@ void libera(char *arq){
 	remove(arq);
 }
 
-void imprime(char *narq, int andar){ //Testada. Est· OK.
+void imprime(char *narq, int andar){ //Testada. Est√° OK.
     FILE *fp = fopen(narq,"rb");
     if(!fp) return;
     int i, j,nchaves, valor;
@@ -172,7 +172,7 @@ void imprime(char *narq, int andar){ //Testada. Est· OK.
     for(i=0; i < nchaves; i++){
         if (retorna_filho(narq,i,filho))
         {
-            fclose(fp); // preciso fechar para n„o abrir mais do que o SO permite
+            fclose(fp); // preciso fechar para n√£o abrir mais do que o SO permite
             imprime(filho,andar+1); // devido a essa chamada recursiva
             fp = fopen(narq,"rb");
         }
@@ -187,11 +187,11 @@ void imprime(char *narq, int andar){ //Testada. Est· OK.
         imprime(filho,andar+1);
 }
 
-int busca(char* narq, int num, char* resp, int t){ //Testada. Est· OK.
-    /*busca onde uma certa chave est· localizada
+int busca(char* narq, int num, char* resp, int t){ //Testada. Est√° OK.
+    /*busca onde uma certa chave est√° localizada
      *se existir retorna 1, e modifica resp como o nome do arquivo onde se encontra a chave
-     *se o arquivo n„o existir, retorna -1
-     *caso contr·rio, retorna 0
+     *se o arquivo n√£o existir, retorna -1
+     *caso contr√°rio, retorna 0
      */
      FILE* f = fopen(narq, "rb");
      if (!f) return 0;
@@ -240,9 +240,9 @@ int busca(char* narq, int num, char* resp, int t){ //Testada. Est· OK.
 }
 
 long int pos_primeiro_filho(FILE *fp){
-    // esse metodo retorna a posiÁ„o do primeiro filho
-    // caso seja um nÛ interno, retorna a posiÁ„o do filho no arquivo
-    // do contr·rio retorna 0
+    // esse metodo retorna a posi√ß√£o do primeiro filho
+    // caso seja um n√≥ interno, retorna a posi√ß√£o do filho no arquivo
+    // do contr√°rio retorna 0
     fseek(fp,0L,SEEK_END);
     int end = ftell(fp);
     fseek(fp,0L,SEEK_SET);
@@ -282,8 +282,8 @@ void ler_TARV(TARV *a)
 
 TARV *divisao(TARV *a, TARV *b, int pos, int t){
    /*
-    * FunÁ„o para dividir um nÛ com 2t-1 chaves (no limite)
-    * Cria um novo nÛ para receber parte das chaves e filhos do nÛ b
+    * Fun√ß√£o para dividir um n√≥ com 2t-1 chaves (no limite)
+    * Cria um novo n√≥ para receber parte das chaves e filhos do n√≥ b
     * novo passa a ser filho de a
     * por fim, uma chave de b sobe para o a
     */
@@ -316,13 +316,13 @@ TARV *divisao(TARV *a, TARV *b, int pos, int t){
 
 void insere_aux(TARV *no, int num, int t){
     /*
-    *FunÁ„o para auxiliar a tarefa do insere
-    *Recursiva, critÈrio de parada quando nÛ È folha: realiza a inserÁ„o
-    *Do contr·rio procura qual filho do nÛ ser· candidato ‡ inserÁ„o
+    *Fun√ß√£o para auxiliar a tarefa do insere
+    *Recursiva, crit√©rio de parada quando n√≥ √© folha: realiza a inser√ß√£o
+    *Do contr√°rio procura qual filho do n√≥ ser√° candidato √† inser√ß√£o
     */
     int i = no->nchaves-1;
     if(no->qtdFilhos == 0){
-        //caso a inserÁ„o seja numa folha, insere ordenado a chave
+        //caso a inser√ß√£o seja numa folha, insere ordenado a chave
         while((i >= 0) && (num < no->chave[i])){
             no->chave[i+1] = no->chave[i];
             i--;
@@ -333,15 +333,15 @@ void insere_aux(TARV *no, int num, int t){
         libera_no(no,t);
         return;
     }
-    // procura potencial candidato a receber nÛ
+    // procura potencial candidato a receber n√≥
     while((i >= 0) && (num < no->chave[i])) i--;
-    i++; //acerta a posiÁ„o caso i = -1 ou num > no->chave
+    i++; //acerta a posi√ß√£o caso i = -1 ou num > no->chave
     TARV *filho = ler_mp(no->filho[i],t);
     int trocou_filho = 0;
     if(filho->nchaves == ((2*t)-1)){
-        // caso o candidato se encontre no limite, uma divis„o È necess·ria
+        // caso o candidato se encontre no limite, uma divis√£o √© necess√°ria
         no = divisao(no,filho,(i+1),t);
-        //caso o indice precise de correÁ„o apÛs a divis„o
+        //caso o indice precise de corre√ß√£o ap√≥s a divis√£o
         if(num > no->chave[i]){
             i++;
             trocou_filho = 1;
@@ -369,7 +369,7 @@ void insere(char *arq,int num, int t){
     }
     fclose(existe);
     TARV *no = ler_mp(arq,t);
-    // caso o no atual precise de divis„o
+    // caso o no atual precise de divis√£o
     if(no->nchaves == (2*t)-1){
         TARV *raiz = inicializa(t);
         raiz->nchaves = 0;
@@ -389,22 +389,11 @@ void insere(char *arq,int num, int t){
 }
 
 void remover(char* narq, int num, int t){
-    printf("Remocao da chave %d\n", num);
-    printf("Procurando no arquivo %s...\n", narq);
-    printf("----------\n");
-    ler_arquivo(narq);
-    printf("----------\n");
     if (!busca(narq, num, NULL, t)) {printf("%d nao encontrado no arvore\n", num);return;}
     int i;
-    TARV* no = ler_mp(narq, t);
-    printf("No foi lido:\n");
-    printf("----------\n");
-    ler_TARV(no);
-    printf("----------\n");
+    TARV* no = ler_mp(narq, t
     for(i = 0; (i < no->nchaves) && (no->chave[i] < num); i++);
-    printf("Variavel i com valor %d...\n", i);
     if (i < no->nchaves && no->chave[i] == num){ //Casos 1, 2A, 2B e 2C
-        printf("Verificando se e caso 1 ou um dos casos 2...\n");
         if (!no->qtdFilhos){ //1
             printf("CASO 1\n");
             int j;
@@ -415,7 +404,6 @@ void remover(char* narq, int num, int t){
             else
                 salva(no, narq);
             libera_no(no, t);
-            printf("Remocao concluida!\n");
             return;
         }
         else{
@@ -423,21 +411,14 @@ void remover(char* narq, int num, int t){
             if (aux->nchaves >= t){ //2A
                 printf("CASO 2A\n");
                 TARV* a = aux;
-                printf("Pegando o arquivo %s...\n", a->nomearq);
-                printf("----------\n");
-                ler_TARV(a);
-                printf("----------\n");
                 char nome_filho[NOME_MAX];
                 while(a->qtdFilhos){
                     strcpy(nome_filho, a->filho[a->qtdFilhos-1]);
                     libera_no(a, t);
-                    printf("Pegando o arquivo %s...\n", nome_filho);
                     a = ler_mp(nome_filho, t);
                 }
-                printf("Passou do while...\n");
                 int temp = a->chave[a->nchaves-1];
                 libera_no(aux, t);
-                printf("Chamando recursivamente...\n");
                 remover(no->filho[i], temp, t);
                 no->chave[i] = temp;
                 salva(no, narq);
@@ -454,11 +435,9 @@ void remover(char* narq, int num, int t){
                     libera_no(a, t);
                     a = ler_mp(nome_filho, t);
                 }
-                printf("Passou do while...\n");
                 int temp = a->chave[0];
                 libera_no(aux, t);
                 libera_no(aux2, t);
-                printf("Chamando recursivamente...\n");
                 remover(no->filho[i+1], temp, t);
                 no->chave[i] = temp;
                 salva(no, narq);
@@ -474,38 +453,31 @@ void remover(char* narq, int num, int t){
                 a->nchaves++;
                 for(j=0; j<t-1; j++) //juntar chave[i+1] com chave[i]
                     a->chave[t+j] = b->chave[j];
-                printf("Passou do primeiro for...\n");
                 for(j=0; j<=t && j<b->qtdFilhos; j++){ //juntar filho[i+1] com filho[i]
                     strcpy(a->filho[t+j],b->filho[j]);
-                    a->qtdFilhos++; //ser· que devo?
+                    a->qtdFilhos++; //ser√° que devo?
                 }
-                printf("Passou do segundo for...\n");
                 a->nchaves = 2*t-1;
                 for(j=i; j < no->nchaves-1; j++)   //remover ch de arv
                     no->chave[j] = no->chave[j+1];// diminuir nchaves?
-                printf("Passou do terceiro for...\n");
                 for(j=i+1; j <= no->nchaves && j < no->qtdFilhos-1; j++){ //remover ponteiro para filho[i+1]
                     strcpy(no->filho[j],no->filho[j+1]);
                 }
-                printf("Passou do quarto for...\n");
                 no->qtdFilhos--;
                 no->nchaves--;
                 if(no->nchaves == 0)
                 {
-                    printf("Entrou no if...\n");
                     salva(a, no->nomearq);
                     remove(b->nomearq);
                     remove(a->nomearq);
                     libera_no(no, t);
                     libera_no(aux, t);
                     libera_no(aux2, t);
-                    printf("Chamando recursivamente...\n");
                     remover(narq, num, t);
                     return;
                 }
                 else
                 {
-                    printf("Entrou no else...\n");
                     char nome_filho[NOME_MAX];
                     strcpy(nome_filho, no->filho[i]);
                     salva(no, narq);
@@ -514,23 +486,18 @@ void remover(char* narq, int num, int t){
                     libera_no(no, t);
                     libera_no(aux, t);
                     libera_no(aux2, t);
-                    printf("Chamando recursivamente...\n");
                     remover(nome_filho, num, t);
                     return;
                 }
             }
         }
     }
-    printf("Nao e caso 1 nem 2...\n");
     TARV *a, *b = NULL;
     a = ler_mp(no->filho[i], t);
-    printf("Leu o filho i...\n");
     if (a->nchaves == t-1){ //3A 3B
-        printf("Verificando se e o caso 3A...\n");
         //if (i < no->nchaves && c->nchaves >=t){ //3A
         if (i < no->nchaves){
             TARV* c = ler_mp(no->filho[i+1], t);
-            printf("Filho i+1 foi lido...\n");
             if (c->nchaves >=t){ //3A
                 printf("CASO 3A: i menor que nchaves\n");
                 b = c;
@@ -561,7 +528,6 @@ void remover(char* narq, int num, int t){
                 libera_no(no, t);
                 libera_no(a, t);
                 libera_no(b, t);
-                printf("Chamando recursivamente...\n");
                 remover(nome_filho, num, t);
                 return;
             }
@@ -570,7 +536,6 @@ void remover(char* narq, int num, int t){
         //if (i > 0 && (!b) && d->nchaves >=t){ //3A
         if (i > 0 && (!b)){
             TARV* d = ler_mp(no->filho[i-1], t);
-            printf("Filho i-1 foi lido...\n");
             if (d->nchaves >=t){ //3A
                 printf("CASO 3A: i igual a nchaves\n");
                 b = d;
@@ -600,19 +565,15 @@ void remover(char* narq, int num, int t){
                 libera_no(no, t);
                 libera_no(a, t);
                 libera_no(b, t);
-                printf("Chamando recursivamente...\n");
                 remover(nome_filho, num, t);
                 return;
             }
             libera_no(d, t);
         }
-        printf("Nao e o caso 3A\n");
         if (!b){
-            printf("Verificando se e o caso 3B...\n");
             //if(i < no->nchaves && c->nchaves == t-1){
             if(i < no->nchaves){
                 TARV* c = ler_mp(no->filho[i+1], t);
-                printf("Filho i+1 foi lido...\n");
                 if (c->nchaves == t-1){ //3B
                     printf("CASO 3B: i menor que nchaves\n");
                     b = c;
@@ -631,7 +592,7 @@ void remover(char* narq, int num, int t){
                             b->qtdFilhos--;
                         }
                     }
-                    for(j=i; j < no->nchaves-1; j++){ //limpar referÍncias de i
+                    for(j=i; j < no->nchaves-1; j++){ //limpar refer√™ncias de i
                         no->chave[j] = no->chave[j+1];
                         strcpy(no->filho[j+1],no->filho[j+2]);
                     }
@@ -655,12 +616,9 @@ void remover(char* narq, int num, int t){
                     {
                         salva(b,b->nomearq);
                     }
-                    printf("Novo no:\n");
-                    ler_arquivo(narq); //Devo?
                     libera_no(no, t);
                     libera_no(a, t);
                     libera_no(b, t);
-                    printf("Chamando recursivamente...\n");
                     remover(narq, num, t);
                     return;
                 }
@@ -669,9 +627,7 @@ void remover(char* narq, int num, int t){
             //if((i > 0) && (d->nchaves == t-1)){
             if (i > 0){
                 TARV* d = ler_mp(no->filho[i-1], t);
-                printf("Filho i-1 foi lido...\n");
                 if (d->nchaves == t-1){ //3B
-                    printf("CASO 3B: i igual a nchaves\n");
                     b = d;
                     if(i == no->nchaves)
                         b->chave[t-1] = no->chave[i-1]; //pegar chave[i] e poe ao final de filho[i-1]
@@ -713,7 +669,6 @@ void remover(char* narq, int num, int t){
                     libera_no(no, t);
                     libera_no(a, t);
                     libera_no(b, t);
-                    printf("Chamando recursivamente...\n");
                     remover(narq, num, t);
                     return;
                 }
@@ -721,7 +676,6 @@ void remover(char* narq, int num, int t){
             }
         }
     }
-    printf("Nao e nenhum dos casos. Hora de proseguir...\n");
     char prox[NOME_MAX];
     strcpy(prox,no->filho[i]);
     libera_no(no, t);
