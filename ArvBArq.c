@@ -195,7 +195,7 @@ int busca(char* narq, int num, char* resp, int t){ //Testada. Está OK.
      */
      FILE* f = fopen(narq, "rb");
      if (!f) return 0;
-     close(f);
+     fclose(f);
      TARV* no = ler_mp(narq, t);
      int i;
      for (i = 0; i < no->nchaves; i++){
