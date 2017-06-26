@@ -391,7 +391,7 @@ void insere(char *arq,int num, int t){
 void remover(char* narq, int num, int t){
     if (!busca(narq, num, NULL, t)) {printf("%d nao encontrado no arvore\n", num);return;}
     int i;
-    TARV* no = ler_mp(narq, t
+    TARV* no = ler_mp(narq, t);
     for(i = 0; (i < no->nchaves) && (no->chave[i] < num); i++);
     if (i < no->nchaves && no->chave[i] == num){ //Casos 1, 2A, 2B e 2C
         if (!no->qtdFilhos){ //1
