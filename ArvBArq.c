@@ -745,9 +745,13 @@ void imprime_tds_arq(){
 
 int main(){
   char raiz[NOME_MAX];
-  int num = 0, from, t;
+  int num = 0, from, t = 1;
   printf("Insira valor de t: \n");
   scanf("%d",&t);
+  while(t < 2){
+    printf("t precisa ser >= 2...\n");
+    scanf("%d",&t);
+  }
   while(num != -1){
     printf("Digite um numero para adicionar. 0 para imprimir. -2 para exibir os arquivos, -3 para remover e -1 para sair\n");
     scanf("%i", &num);
