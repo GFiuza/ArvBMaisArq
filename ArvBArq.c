@@ -28,7 +28,7 @@ TARV *inicializa(int t){
     return novo;
 }
 
-void libera_no(TARV *no, int t){
+TARV* libera_no(TARV *no, int t){
     if (no){
         free(no->chave);
         int i;
@@ -37,6 +37,7 @@ void libera_no(TARV *no, int t){
         free(no->filho);
         free(no);
     }
+    return NULL;
 }
 
 TARV *ler_mp(char *arq, int t){
@@ -579,6 +580,7 @@ void remover(char* narq, int num, int t){
                     b = c;
                     a->chave[t-1] = no->chave[i];     //pegar chave [i] e coloca ao final de filho[i]
                     a->nchaves++;
+		    printf("Chave que desceu: %d\n", a->chave[t-1]);
                     int j;
                     for(j=0; j < t-1; j++){
                         a->chave[t+j] = b->chave[j];     //passar filho[i+1] para filho[i]
@@ -586,9 +588,11 @@ void remover(char* narq, int num, int t){
                         b->nchaves--;
                     }
                     if(a->qtdFilhos){
+			printf("%d\n",a->qtdFilhos);
                         for(j=0; j<t; j++){
                             strcpy(a->filho[t+j],b->filho[j]);
                             a->qtdFilhos++;
+			    printf("%d\n",a->qtdFilhos);
                             b->qtdFilhos--;
                         }
                     }
@@ -598,24 +602,34 @@ void remover(char* narq, int num, int t){
                     }
                     no->nchaves--;
                     no->qtdFilhos--; //Devo?
+		    printf("3\n");
                     if(no->nchaves == 0)
                     {
+			printf("3.1\n");
+			printf("%d\n",a->qtdFilhos);
                         salva(a, no->nomearq);
                         remove(a->nomearq);
+			printf("3.1\n");
                     }
                     else
                     {
+			printf("3.2\n");
                         salva(no, narq);
                         salva(a,a->nomearq);
+			printf("3.2\n");
                     }
                     if(b->nchaves == 0)
                     {
+			printf("3.3\n");
                         remove(b->nomearq);
+			printf("3.3\n");
                     }
                     else
                     {
+			printf("2.4\n");
                         salva(b,b->nomearq);
                     }
+		    printf("4\n");
                     libera_no(no, t);
                     libera_no(a, t);
                     libera_no(b, t);
@@ -628,20 +642,22 @@ void remover(char* narq, int num, int t){
             if (i > 0){
                 TARV* d = ler_mp(no->filho[i-1], t);
                 if (d->nchaves == t-1){ //3B
+		    printf("caso 3b i = nchaves\n");
                     b = d;
                     if(i == no->nchaves)
                         b->chave[t-1] = no->chave[i-1]; //pegar chave[i] e poe ao final de filho[i-1]
                     else
                         b->chave[t-1] = no->chave[i];   //pegar chave [i] e poe ao final de filho[i-1]
                     b->nchaves++;
+		    printf("Desceu o no %d\n", b->chave[t-1]);
                     int j;
                     for(j=0; j < t-1; j++){
                         b->chave[t+j] = a->chave[j];     //passar filho[i+1] para filho[i]
                         b->nchaves++;
-                        a->chave--;
+                        a->nchaves--;
                     }
                     if(b->qtdFilhos){
-                        for(j=0; j<t; j++){
+                        for(j=0; j<t; j++){ // j = 0
                             strcpy(b->filho[t+j],a->filho[j]);
                             b->qtdFilhos++;
                             a->qtdFilhos--;
@@ -656,19 +672,15 @@ void remover(char* narq, int num, int t){
                     else
                     {
                         salva(no, narq);
-                        salva(a, a->nomearq);
+                        salva(b, b->nomearq);
                     }
                     if(a->nchaves==0)
                     {
                         remove(a->nomearq);
                     }
-                    else
-                    {
-                        salva(b, b->nomearq);
-                    }
-                    libera_no(no, t);
-                    libera_no(a, t);
-                    libera_no(b, t);
+                    no = libera_no(no, t);
+		    a = libera_no(a, t);
+                    b = libera_no(b, t);
                     remover(narq, num, t);
                     return;
                 }
@@ -690,7 +702,11 @@ void imprime_tds_arq(){
     for(i=1;i<n_arq;i++){
         sprintf(nome,"%d",i);
         strcat(nome,".dat");
-        ler_arquivo(nome);
+	FILE *fp = fopen(nome,"rb");
+	if(fp){
+           ler_arquivo(nome);
+	   fclose(fp);
+	}
     }
 }
 
