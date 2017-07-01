@@ -59,11 +59,9 @@ TARV *ler_mp(char *arq, int t){
     char nome[NOME_MAX];
     for(i=0;ftell(fp)<tam;i++){
         fread(&nome,sizeof(char),NOME_MAX,fp);
-        int j;
         strcpy(novo->filho[i],nome);
-        novo->qtdFilhos++;
     }
-    if(novo->qtdFilhos)
+    if(i)
         novo->qtdFilhos = novo->nchaves+1;
     fclose(fp);
     return novo;
