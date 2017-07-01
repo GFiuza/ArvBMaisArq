@@ -452,13 +452,15 @@ void remover(char* narq, int num, int t){
                 a->chave[a->nchaves] = num;          //colocar ch ao final de filho[i]
                 int j;
                 a->nchaves++;
-                for(j=0; j<t-1; j++) //juntar chave[i+1] com chave[i]
+                for(j=0; j<t-1; j++){ //juntar chave[i+1] com chave[i]
                     a->chave[t+j] = b->chave[j];
+                    a->nchaves++;
+                }
                 for(j=0; j<=t && j<b->qtdFilhos; j++){ //juntar filho[i+1] com filho[i]
                     strcpy(a->filho[t+j],b->filho[j]);
                     a->qtdFilhos++; //será que devo?
                 }
-                a->nchaves = 2*t-1;
+                //a->nchaves = 2*t-1;
                 for(j=i; j < no->nchaves-1; j++)   //remover ch de arv
                     no->chave[j] = no->chave[j+1];// diminuir nchaves?
                 for(j=i+1; j <= no->nchaves && j < no->qtdFilhos-1; j++){ //remover ponteiro para filho[i+1]
@@ -517,7 +519,7 @@ void remover(char* narq, int num, int t){
                     a->qtdFilhos++;
                     b->qtdFilhos--;
                 }
-                for(j=0; j < b->qtdFilhos; j++)       //ajustar filhos de z
+                for(j=0; j < b->qtdFilhos-1; j++)       //ajustar filhos de z //-1
                 {
                     strcpy(b->filho[j],b->filho[j+1]);
                 }
